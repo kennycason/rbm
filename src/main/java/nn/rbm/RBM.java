@@ -47,9 +47,6 @@ public class RBM {
     public Matrix runVisible(final Matrix dataSet) {
         final int numberSamples = dataSet.rows();
 
-        // Create a matrix, where each row is to be the hidden units (plus a bias unit) sampled from a training example.
-        // final double[][] hiddenStates = Matrix.fill(numberSamples, this.hidden.getSize(), 1.0);
-
         // Calculate the activations of the hidden units.
         final Matrix hiddenActivations = dataSet.dot(this.weights);
         // Calculate the probabilities of turning the hidden units on.
@@ -68,9 +65,6 @@ public class RBM {
      */
     public Matrix runHidden(final Matrix dataSet) {
         final int numberSamples = dataSet.rows();
-
-        // Create a matrix, where each row is to be the visible units (plus a bias unit) sampled from a training example.
-        // final double[][] visibleStates = Matrix.fill(numberSamples, this.visible.getSize(), 1.0);
 
         // Calculate the activations of the hidden units.
         final Matrix visibleActivations = dataSet.dot(ImmutableMatrix.transpose(this.weights));
@@ -115,11 +109,11 @@ public class RBM {
             final Matrix hiddenStates = buildStatesFromActivationsMatrix(hiddenProbabilities, ImmutableMatrix.random(numberSamples, this.hidden.getSize()));
 
             // Calculate the activations of the hidden units.
-            final Matrix visibleActivations = dataSet.dot(ImmutableMatrix.transpose(this.weights));
+            final Matrix visibleActivations = hiddenStates.dot(ImmutableMatrix.transpose(this.weights));
             // Calculate the probabilities of turning the visible units on.
             final Matrix visibleProbabilities = visibleActivations.apply(this.logisticsFunction);
             // Turn the visible units on with their specified probabilities.
-            final Matrix visibleStates = buildStatesFromActivationsMatrix(visibleProbabilities, ImmutableMatrix.random(numberSamples, this.hidden.getSize()));
+            final Matrix visibleStates = buildStatesFromActivationsMatrix(visibleProbabilities, ImmutableMatrix.random(numberSamples, this.visible.getSize()));
 
             sample = visibleStates.data()[0];
         }
