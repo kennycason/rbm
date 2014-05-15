@@ -2,6 +2,8 @@ package nn.rbm;
 
 import math.matrix.ImmutableMatrix;
 import math.matrix.Matrix;
+import nn.rbm.learn.ContrastiveDivergenceRBM;
+import nn.rbm.learn.LearningParameters;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
@@ -16,27 +18,29 @@ public class TestRBM {
 
     @Test
     public void train() {
-        final RBM rbm = RBMFactory.buildRandomRBM(6, 4);
-        rbm.setLearningRate(0.1);
+        final RBM rbm = RBMFactory.buildRandomRBM(6, 3);
+        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(25000));
         LOGGER.info(rbm);
-        rbm.train(buildBetterSampleTrainingData(), 15000);
+
+        cdRBM.learn(buildBetterSampleTrainingData());
         LOGGER.info(rbm);
 
         // fetch two recommendations
         final Matrix dataSet = new ImmutableMatrix(new double[][] {{0,0,0,1,1,0}, {0,0,1,1,0,0}});
-        Matrix hidden = rbm.runVisible(dataSet);
+        Matrix hidden = cdRBM.runVisible(dataSet);
         LOGGER.info(hidden);
-        Matrix visual = rbm.runHidden(hidden);
+        Matrix visual = cdRBM.runHidden(hidden);
         LOGGER.info(visual);
     }
 
     @Test
     public void daydream() {
         final RBM rbm = RBMFactory.buildRandomRBM(6, 4);
-        rbm.setLearningRate(0.1);
-        rbm.train(buildBetterSampleTrainingData(), 15000);
+        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(25000));
 
-        Set<Matrix> visualizations = rbm.dayDream (buildBetterSampleTrainingData(), 100);
+        cdRBM.learn(buildBetterSampleTrainingData());
+
+        Set<Matrix> visualizations = cdRBM.dayDream(buildBetterSampleTrainingData(), 10);
         LOGGER.info(visualizations);
     }
 
