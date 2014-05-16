@@ -25,7 +25,7 @@ public class TestImmutableMatrix {
         ImmutableMatrix b = new ImmutableMatrix(bd);
 
         // should be [[58 64][139 154]]
-        ImmutableMatrix p = a.dot(b);
+        Matrix p = a.dot(b);
 
         assertEquals(58, p.get(0,0), DELTA);
         assertEquals(64, p.get(0,1), DELTA);

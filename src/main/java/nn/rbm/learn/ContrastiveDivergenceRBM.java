@@ -34,11 +34,12 @@ public class ContrastiveDivergenceRBM {
     }
 
     public void learn(final Matrix dataSet) {
-        LOGGER.info("Training: " + dataSet);
         final int numberSamples = dataSet.rows();
         final Matrix weights = rbm.getWeights();
 
+        LOGGER.info("Start Learning (" + numberSamples + " samples)");
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
+            final long startSeconds = System.currentTimeMillis();
 
             // Read training data and sample from the hidden later, positive CD phase, (reality phase)
             final Matrix positiveHiddenActivations = dataSet.dot(weights);
@@ -65,18 +66,17 @@ public class ContrastiveDivergenceRBM {
             weights.add(positiveAssociations.subtract(negativeAssociations).divide(numberSamples).multiply(learningParameters.getLearningRate()));
 
             final double error = dataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
-            if(epoch % 10 == 0) {
-                LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error);
-            }
+            final long endTime = System.currentTimeMillis();
+            LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + (endTime - startSeconds) / 1000.0 + "s");
         }
     }
 
     /*
-    Assuming the RBM has been trained, run the network on a set of visible units to get a sample of the hidden units.
-    Parameters, A matrix where each row consists of the states of the visible units.
-    hidden_states, A matrix where each row consists of the hidden units activated from the visible
-    units in the data matrix passed in.
- */
+        Assuming the RBM has been trained, run the network on a set of visible units to get a sample of the hidden units.
+        Parameters, A matrix where each row consists of the states of the visible units.
+        hidden_states, A matrix where each row consists of the hidden units activated from the visible
+        units in the data matrix passed in.
+     */
     public Matrix runVisible(final Matrix dataSet) {
         final int numberSamples = dataSet.rows();
         final Matrix weights = this.rbm.getWeights();

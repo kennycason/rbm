@@ -31,6 +31,16 @@ public class MutableMatrix extends Matrix {
     }
 
     @Override
+    public double[] row(int row) {
+        return this.m[row];
+    }
+
+    @Override
+    public Matrix append(final Matrix m2) {
+        return new MutableMatrix(append(this.m, m2.m));
+    }
+
+    @Override
     public Matrix dot(final Matrix m2) {
         if(cols != m2.rows) { throw new IllegalArgumentException("Matrices must be in form of A_n_m and B_m_p"); }
 
@@ -132,11 +142,11 @@ public class MutableMatrix extends Matrix {
     /*
         Static Helpers
      */
-    public static MutableMatrix random(int r, int c) {
+    public static Matrix random(int r, int c) {
         return random(r, c, 1.0);
     }
 
-    public static MutableMatrix random(int r, int c, double scalar) {
+    public static Matrix random(int r, int c, double scalar) {
         final double[][] m = new double[r][c];
         for(int i = 0; i < r; i++) {
             for(int j = 0; j < c; j++) {
@@ -146,11 +156,11 @@ public class MutableMatrix extends Matrix {
         return new MutableMatrix(m);
     }
 
-    public static MutableMatrix randomNormal(int r, int c) {
+    public static Matrix randomNormal(int r, int c) {
         return random(r, c, 1.0);
     }
 
-    public static MutableMatrix randomNormal(int r, int c, double scalar) {
+    public static Matrix randomNormal(int r, int c, double scalar) {
         final double[][] m = new double[r][c];
         for(int i = 0; i < r; i++) {
             for(int j = 0; j < c; j++) {

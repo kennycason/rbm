@@ -46,6 +46,8 @@ public abstract class Matrix {
 
     public abstract Matrix set(final int i, final int j, final double value);
 
+    public abstract double[] row(final int row);
+
     public int dim() {
         return dim;
     }
@@ -90,6 +92,8 @@ public abstract class Matrix {
 
     public abstract Matrix fill(double value);
 
+    public abstract Matrix append(final Matrix m2);
+
     @Override
     public String toString() {
         return PrettyPrint.toString(m);
@@ -118,6 +122,23 @@ public abstract class Matrix {
                 to[i][j] = from[i][j];
             }
         }
+    }
+
+    public static double[][] append(final double[][] a, final double[][] b) {
+        if(cols(a) != cols(b)) {
+            throw new IllegalArgumentException("arrays must have same number of columns!");
+        }
+        final int rowsA = rows(a);
+        final int rowsB = rows(b);
+        final int cols = cols(a);
+        final double[][] appended = new double[rowsA + rowsB][cols];
+        for(int i = 0; i < rowsA; i++) {
+            System.arraycopy(a[i], 0, appended[i], 0, cols);
+        }
+        for(int i = 0; i < rowsB; i++) {
+            System.arraycopy(b[i], 0, appended[i + rowsA], 0, cols);
+        }
+        return appended;
     }
 
     public static int rows(final double[][] m) {
