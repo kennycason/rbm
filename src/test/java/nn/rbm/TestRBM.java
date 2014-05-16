@@ -61,10 +61,8 @@ public class TestRBM {
         cdRBM.learn(dataSet);
 
         for(int i = 0; i < dataSet.rows(); i++) {
-            LOGGER.info("Data Index: " + i);
             final Matrix testData = new ImmutableMatrix(new double[][] {dataSet.row(i)});
             final Matrix hidden = cdRBM.runVisible(testData);
-            LOGGER.info("\n" + PrettyPrint.toPixelBox(hidden.row(0), 28, 0.5));
             final Matrix visual = cdRBM.runHidden(hidden);
             LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
         }
@@ -78,8 +76,8 @@ public class TestRBM {
 
         final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
 
-        final RBM rbm = RBMFactory.buildRandomRBM(imageDim, 15);
-        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(5000));
+        final RBM rbm = RBMFactory.buildRandomRBM(imageDim, 25);
+        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(15000));
 
         final Matrix trainingSet = new ImmutableMatrix(new double[][] {
                 totalDataSet.row(0),
@@ -98,13 +96,33 @@ public class TestRBM {
         cdRBM.learn(trainingSet);
 
         for(int i = 0; i < trainingSet.rows(); i++) {
-            LOGGER.info("Data Index: " + i);
             final Matrix testData = new ImmutableMatrix(new double[][] {trainingSet.row(i)});
             final Matrix hidden = cdRBM.runVisible(testData);
-            LOGGER.info("\n" + PrettyPrint.toPixelBox(hidden.row(0), 28, 0.5));
             final Matrix visual = cdRBM.runHidden(hidden);
             LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
         }
+
+    }
+
+    @Test
+    public void number() {
+        final MNISTImageLoader mnistImageLoader = new MNISTImageLoader();
+        final Matrix totalDataSet = mnistImageLoader.loadIdx3("/data/train-images-idx3-ubyte").divide(255.0);
+
+        final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
+
+        final RBM rbm = RBMFactory.buildRandomRBM(imageDim, 20);
+        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(15000));
+        final Matrix trainingData = new ImmutableMatrix(new double[][] { totalDataSet.row(0) });
+
+        LOGGER.info("\n" + PrettyPrint.toPixelBox(trainingData.row(0), 28, 0.5));
+
+        cdRBM.learn(trainingData);
+
+        final Matrix hidden = cdRBM.runVisible(trainingData);
+        final Matrix visual = cdRBM.runHidden(hidden);
+        LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
+
 
     }
 

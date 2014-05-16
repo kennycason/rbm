@@ -67,7 +67,10 @@ public class ContrastiveDivergenceRBM {
 
             final double error = dataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
             final long endTime = System.currentTimeMillis();
-            LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + (endTime - startSeconds) / 1000.0 + "s");
+
+            if(epoch % 100 == 0) {
+                LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + (endTime - startSeconds) / 1000.0 + "s");
+            }
         }
     }
 
