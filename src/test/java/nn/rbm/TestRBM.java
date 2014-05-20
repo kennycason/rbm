@@ -3,6 +3,7 @@ package nn.rbm;
 import data.image.Image;
 import data.image.decode.Matrix24BitImageDecoder;
 import data.image.encode.Matrix24BitImageEncoder;
+import data.image.encode.MatrixGrayscaleImageEncoder;
 import data.mnist.MNISTImageLoader;
 import math.matrix.ImmutableMatrix;
 import math.matrix.Matrix;
@@ -133,7 +134,7 @@ public class TestRBM {
     }
 
     @Test
-    public void image() {
+    public void imageMicro() {
         final Image jetImage = new Image("/data/fighter_jet_small.jpg");
         final Matrix jetMatrix = new Matrix24BitImageEncoder().encode(jetImage);
 
@@ -149,7 +150,37 @@ public class TestRBM {
     }
 
 
+    @Test
+    public void imageSmall() {
+        final Image jetImage = new Image("/data/fighter_jet_small.jpg");
+        final Matrix jetMatrix = new Matrix24BitImageEncoder().encode(jetImage);
 
+        final RBM rbm = RBM_FACTORY.build(jetMatrix.cols(), 100);
+        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(5000));
+
+        cdRBM.learn(jetMatrix);
+
+        final Matrix hidden = cdRBM.runVisible(jetMatrix);
+        final Matrix visual = cdRBM.runHidden(hidden);
+        final Image outImage = new Matrix24BitImageDecoder(63).decode(visual); // 19/63/250
+        outImage.save("/tmp/fighter_rendered.jpg");
+    }
+
+    @Test
+    public void imageGrayScale() {
+        final Image jetImage = new Image("/data/fighter_jet_micro.jpg");
+        final Matrix jetMatrix = new MatrixGrayscaleImageEncoder().encode(jetImage);
+
+        final RBM rbm = RBM_FACTORY.build(jetMatrix.cols(), 100);
+        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(10000));
+
+        cdRBM.learn(jetMatrix);
+
+        final Matrix hidden = cdRBM.runVisible(jetMatrix);
+        final Matrix visual = cdRBM.runHidden(hidden);
+        final Image outImage = new data.image.decode.MatrixGrayscaleImageDecoder(19).decode(visual); // 19/63/250
+        outImage.save("/tmp/fighter_rendered.jpg");
+    }
 
     @Test
     public void deepRBM() {
