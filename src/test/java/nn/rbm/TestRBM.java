@@ -2,8 +2,10 @@ package nn.rbm;
 
 import data.image.Image;
 import data.image.decode.Matrix24BitImageDecoder;
+import data.image.decode.Matrix8BitImageDecoder;
 import data.image.decode.MatrixGrayscaleImageDecoder;
 import data.image.encode.Matrix24BitImageEncoder;
+import data.image.encode.Matrix8BitImageEncoder;
 import data.image.encode.MatrixGrayscaleImageEncoder;
 import data.mnist.MNISTImageLoader;
 import math.matrix.ImmutableMatrix;
@@ -152,7 +154,7 @@ public class TestRBM {
 
 
     @Test
-    public void imageSmall() {
+    public void imageSmall24Bit() {
         final Image jetImage = new Image("/data/fighter_jet_small.jpg");
         final Matrix jetMatrix = new Matrix24BitImageEncoder().encode(jetImage);
 
@@ -164,7 +166,23 @@ public class TestRBM {
         final Matrix hidden = cdRBM.runVisible(jetMatrix);
         final Matrix visual = cdRBM.runHidden(hidden);
         final Image outImage = new Matrix24BitImageDecoder(63).decode(visual); // 19/63/250
-        outImage.save("/tmp/fighter_rendered.jpg");
+        outImage.save("/tmp/fighter_rendered_small_24bit.jpg");
+    }
+
+    @Test
+    public void imageSmall8Bit() {
+        final Image jetImage = new Image("/data/fighter_jet_small.jpg");
+        final Matrix jetMatrix = new Matrix8BitImageEncoder().encode(jetImage);
+
+        final RBM rbm = RBM_FACTORY.build(jetMatrix.cols(), 100);
+        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(1000));
+
+        cdRBM.learn(jetMatrix);
+
+        final Matrix hidden = cdRBM.runVisible(jetMatrix);
+        final Matrix visual = cdRBM.runHidden(hidden);
+        final Image outImage = new Matrix8BitImageDecoder(63).decode(visual); // 19/63/250
+        outImage.save("/tmp/fighter_rendered_small_8bit.jpg");
     }
 
     @Test
@@ -197,7 +215,6 @@ public class TestRBM {
         DeepRBM deepRBM = new DeepRBM(layerParameters, RBM_FACTORY);
         // LOGGER.info(deepRBM);
 
-
         final MNISTImageLoader mnistImageLoader = new MNISTImageLoader();
         final Matrix totalDataSet = mnistImageLoader.loadIdx3("/data/train-images-idx3-ubyte").divide(255.0);
 
@@ -211,6 +228,7 @@ public class TestRBM {
         cdRBM.learn(trainingData);
 
         final Matrix hidden = cdRBM.runVisible(trainingData);
+
         final Matrix visual = cdRBM.runHidden(hidden);
         LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
     }

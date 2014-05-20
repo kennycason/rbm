@@ -43,13 +43,17 @@ public class DeepContrastiveDivergenceRBM {
 
         final RBMLayer[] rbmLayers = rbm.getRbmLayers();
 
-        final List<Matrix> samplePieces = dataSet.splitColumns(rbmLayers[0].size()); // split dataset across rbms
+        final List<Matrix> trainingData = dataSet.splitColumns(rbmLayers[0].size()); // split dataset across rbms
 
+        CLOCK.start();
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
 
-            for(int layer = 0; layer < 1 /*rbmLayers.length*/; layer++) {
+            for(int layer = 0; layer < rbmLayers.length; layer++) {
                 final RBMLayer rbmLayer = rbmLayers[layer];
 
+                final List<Matrix> samplePieces = buildSampleData(trainingData, layer, rbmLayers);
+
+                // start lurnin'
                 for(int r = 0; r < rbmLayer.size(); r++) {
                     final RBM rbm = rbmLayer.getRbms()[r];
                     final Matrix splitDataSet = samplePieces.get(r);
@@ -81,54 +85,13 @@ public class DeepContrastiveDivergenceRBM {
                     final double error = splitDataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
 
                     if(epoch % 100 == 0) {
-                        LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error);
+                        LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + CLOCK.elapsedSeconds() + "s");
+                        CLOCK.reset();
                     }
                 }
             }
         }
     }
-
-
-//    public void learn(final RBM rbm, final Matrix dataSet) {
-//        final int numberSamples = dataSet.rows();
-//        final Matrix weights = rbm.getWeights();
-//
-//        LOGGER.info("Start Learning (" + numberSamples + " samples)");
-//        for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
-//            final long startSeconds = System.currentTimeMillis();
-//
-//            // Read training data and sample from the hidden later, positive CD phase, (reality phase)
-//            final Matrix positiveHiddenActivations = dataSet.dot(weights);
-//
-//            final Matrix positiveHiddenProbabilities = positiveHiddenActivations.apply(logisticsFunction);
-//            final Matrix random = ImmutableMatrix.random(numberSamples, rbm.getHidden().getSize());
-//            final Matrix positiveHiddenStates = buildStatesFromActivationsMatrix(positiveHiddenProbabilities, random);
-//
-//            // Note that we're using the activation *probabilities* of the hidden states, not the hidden states themselves, when computing associations.
-//            // We could also use the states; see section 3 of Hinton's A Practical Guide to Training Restricted Boltzmann Machines" for more.
-//            final Matrix positiveAssociations = dataSet.transpose().dot(positiveHiddenProbabilities);
-//
-//            // Reconstruct the visible units and sample again from the hidden units. negative CD phase, aka the daydreaming phase.
-//            final Matrix negativeVisibleActivations = positiveHiddenStates.dot(ImmutableMatrix.transpose(weights));
-//            final Matrix negativeVisibleProbabilities = negativeVisibleActivations.apply(logisticsFunction);
-//
-//            final Matrix negativeHiddenActivations = negativeVisibleProbabilities.dot(weights);
-//            final Matrix negativeHiddenProbabilities = negativeHiddenActivations.apply(logisticsFunction);
-//
-//            // Note, again, that we're using the activation *probabilities* when computing associations, not the states themselves.
-//            final Matrix negativeAssociations = negativeVisibleProbabilities.transpose().dot(negativeHiddenProbabilities);
-//
-//            // Update weights.
-//            weights.add(positiveAssociations.subtract(negativeAssociations).divide(numberSamples).multiply(learningParameters.getLearningRate()));
-//
-//            final double error = dataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
-//            final long endTime = System.currentTimeMillis();
-//
-//            if(epoch % 100 == 0) {
-//                LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + (endTime - startSeconds) / 1000.0 + "s");
-//            }
-//        }
-//    }
 
     /*
         Assuming the RBM has been trained, run the network on a set of visible units to get a sample of the hidden units.
@@ -141,13 +104,16 @@ public class DeepContrastiveDivergenceRBM {
 
         final RBMLayer[] rbmLayers = rbm.getRbmLayers();
 
-        final List<Matrix> samplePieces = dataSet.splitColumns(rbmLayers[0].size()); // split dataset across rbms
+        final List<Matrix> trainingData = dataSet.splitColumns(rbmLayers[0].size()); // split dataset across rbms
 
-        double[][][] hiddenStatesArray = new double[rbmLayers[0].size()][][];
+        double[][][] hiddenStatesArray = new double[0][0][0];
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
 
-            for(int layer = 0; layer < 1 /*rbmLayers.length*/; layer++) {
+            for(int layer = 0; layer < rbmLayers.length; layer++) {
                 final RBMLayer rbmLayer = rbmLayers[layer];
+                hiddenStatesArray = new double[rbmLayer.size()][][];
+
+                final List<Matrix> samplePieces = buildSampleData(trainingData, layer, rbmLayers);
 
                 for(int r = 0; r < rbmLayer.size(); r++) {
                     final RBM rbm = rbmLayer.getRbms()[r];
@@ -166,15 +132,7 @@ public class DeepContrastiveDivergenceRBM {
             }
         }
         return new ImmutableMatrix(Matrix.appendColumns(hiddenStatesArray));
-//
-//        // Calculate the activations of the hidden units.
-//        final Matrix hiddenActivations = dataSet.dot(weights);
-//        // Calculate the probabilities of turning the hidden units on.
-//        final Matrix hiddenProbabilities = hiddenActivations.apply(logisticsFunction);
-//        // Turn the hidden units on with their specified probabilities.
-//        final Matrix hiddenStates = buildStatesFromActivationsMatrix(hiddenProbabilities, ImmutableMatrix.random(numberSamples, rbm.getHidden().getSize()));
-//
-//        return hiddenStates;
+
     }
 
     /*
@@ -188,13 +146,16 @@ public class DeepContrastiveDivergenceRBM {
 
         final RBMLayer[] rbmLayers = rbm.getRbmLayers();
 
-        final List<Matrix> samplePieces = dataSet.splitColumns(rbmLayers[0].size()); // split dataset across rbms
+        final List<Matrix> trainingData = dataSet.splitColumns(rbmLayers[rbmLayers.length - 1].size()); // split dataset across rbms
 
-        double[][][] visibleStatesArray = new double[rbmLayers[0].size()][][];
+        double[][][] visibleStatesArray = new double[0][0][0];
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
 
-            for(int layer = 0; layer < 1 /*rbmLayers.length*/; layer++) {
+            for(int layer = rbmLayers.length - 1; layer >= 0; layer--) {
                 final RBMLayer rbmLayer = rbmLayers[layer];
+                visibleStatesArray = new double[rbmLayer.size()][][];
+
+                final List<Matrix> samplePieces = buildSampleDataReverse(trainingData, layer, rbmLayers);
 
                 for(int r = 0; r < rbmLayer.size(); r++) {
                     final RBM rbm = rbmLayer.getRbms()[r];
@@ -213,19 +174,42 @@ public class DeepContrastiveDivergenceRBM {
             }
         }
         return new ImmutableMatrix(Matrix.appendColumns(visibleStatesArray));
+    }
 
+    private static List<Matrix> buildSampleData(List<Matrix> trainingData, int layer, RBMLayer[] rbmLayers) {
+        final RBMLayer rbmLayer = rbmLayers[layer];
 
-//        final int numberSamples = dataSet.rows();
-//        final Matrix weights = this.rbm.getWeights();
-//
-//        // Calculate the activations of the hidden units.
-//        final Matrix visibleActivations = dataSet.dot(ImmutableMatrix.transpose(weights));
-//        // Calculate the probabilities of turning the visible units on.
-//        final Matrix visibleProbabilities = visibleActivations.apply(this.logisticsFunction);
-//        // Turn the visible units on with their specified probabilities.
-//        final Matrix visibleStates = buildStatesFromActivationsMatrix(visibleProbabilities, ImmutableMatrix.random(numberSamples, rbm.getVisible().getSize()));
-//
-//        return visibleStates;
+        // generate sample pieces for all deep layers
+        if(layer == 0) {
+            return trainingData;
+        }
+        else {
+            final RBMLayer previousLayer = rbmLayers[layer - 1];
+            double[][][] previousLayerOutputs = new double[previousLayer.size()][][];
+            for(int r = 0; r < previousLayer.size(); r++) {
+                previousLayerOutputs[r] = new double[][] { previousLayer.getRbms()[r].getHidden().getValues() };
+            }
+            // combine all outputs off hidden layer, then re-split them to input into the next visual layer
+            return new ImmutableMatrix(Matrix.appendColumns(previousLayerOutputs)).splitColumns(rbmLayer.size()) ;
+        }
+    }
+
+    private static List<Matrix> buildSampleDataReverse(List<Matrix> trainingData, int layer, RBMLayer[] rbmLayers) {
+        final RBMLayer rbmLayer = rbmLayers[layer];
+
+        // generate sample pieces for all deep layers
+        if(layer == rbmLayers.length - 1) {
+            return trainingData;
+        }
+        else {
+            final RBMLayer previousLayer = rbmLayers[layer + 1];
+            double[][][] previousLayerInputs = new double[previousLayer.size()][][];
+            for(int r = 0; r < previousLayer.size(); r++) {
+                previousLayerInputs[r] = new double[][] { previousLayer.getRbms()[r].getVisible().getValues() };
+            }
+            // combine all outputs off hidden layer, then re-split them to input into the next visual layer
+            return new ImmutableMatrix(Matrix.appendColumns(previousLayerInputs)).splitColumns(rbmLayer.size());
+        }
     }
 //
 //    /*

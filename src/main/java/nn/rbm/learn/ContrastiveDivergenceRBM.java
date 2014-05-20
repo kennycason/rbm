@@ -41,8 +41,8 @@ public class ContrastiveDivergenceRBM {
         final Matrix weights = rbm.getWeights();
 
         LOGGER.info("Start Learning (" + numberSamples + " samples)");
+        CLOCK.start();
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
-            CLOCK.reset();
 
             // Read training data and sample from the hidden later, positive CD phase, (reality phase)
             final Matrix positiveHiddenActivations = dataSet.dot(weights);
@@ -70,8 +70,9 @@ public class ContrastiveDivergenceRBM {
 
             final double error = dataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
 
-            if(epoch % 100 == 0) {
+            if(epoch % 10 == 0) {
                 LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + CLOCK.elapsedSeconds() + "s");
+                CLOCK.reset();
             }
         }
     }

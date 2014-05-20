@@ -11,8 +11,6 @@ import java.awt.image.BufferedImage;
  */
 public class MatrixGrayscaleImageEncoder implements MatrixImageEncoder {
 
-    private static final int RGB_BITS = 24;
-
     private static final int BITS = 8;
 
     private static final int HIGH_BIT_FLAG = 0b1000_0000_1000_0000_1000_0000;
