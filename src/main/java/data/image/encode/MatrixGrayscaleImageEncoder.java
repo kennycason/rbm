@@ -32,13 +32,13 @@ public class MatrixGrayscaleImageEncoder implements MatrixImageEncoder {
     private void read(final double[] matrix, final BufferedImage bi, final int x, final int y) {
         int flag = HIGH_BIT_FLAG;
         int offset = 0;
-        while(flag > 0) {
+        while(offset < 8) {
             final int rgb = bi.getRGB(x, y) & 0xFFFFFF;
             boolean set = (rgb & flag) == flag;
             int index = (y * bi.getWidth() * BITS) + ((x * BITS) + offset);
             matrix[index] = set ? 1.0 : 0.0;
             offset++;
-            flag >>= RGB_BITS / BITS;
+            flag >>= 1;
         }
     }
 

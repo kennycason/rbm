@@ -7,6 +7,7 @@ import nn.rbm.RBM;
 import nn.rbm.deep.DeepRBM;
 import nn.rbm.deep.RBMLayer;
 import org.apache.log4j.Logger;
+import utils.Clock;
 
 import java.util.List;
 import java.util.Random;
@@ -21,6 +22,8 @@ public class DeepContrastiveDivergenceRBM {
     private static final Logger LOGGER = Logger.getLogger(DeepContrastiveDivergenceRBM.class);
 
     private static final Random RANDOM = new Random();
+
+    private static final Clock CLOCK = Clock.getInstance();
 
     private final DeepRBM rbm;
 

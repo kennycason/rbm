@@ -5,6 +5,7 @@ import math.matrix.ImmutableMatrix;
 import math.matrix.Matrix;
 import nn.rbm.RBM;
 import org.apache.log4j.Logger;
+import utils.Clock;
 
 import java.util.HashSet;
 import java.util.Random;
@@ -20,6 +21,8 @@ public class ContrastiveDivergenceRBM {
     private static final Logger LOGGER = Logger.getLogger(ContrastiveDivergenceRBM.class);
 
     private static final Random RANDOM = new Random();
+
+    private static final Clock CLOCK = Clock.getInstance();
 
     private final RBM rbm;
 
@@ -39,7 +42,7 @@ public class ContrastiveDivergenceRBM {
 
         LOGGER.info("Start Learning (" + numberSamples + " samples)");
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
-            final long startSeconds = System.currentTimeMillis();
+            CLOCK.reset();
 
             // Read training data and sample from the hidden later, positive CD phase, (reality phase)
             final Matrix positiveHiddenActivations = dataSet.dot(weights);
@@ -66,10 +69,9 @@ public class ContrastiveDivergenceRBM {
             weights.add(positiveAssociations.subtract(negativeAssociations).divide(numberSamples).multiply(learningParameters.getLearningRate()));
 
             final double error = dataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
-            final long endTime = System.currentTimeMillis();
 
             if(epoch % 100 == 0) {
-                LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + (endTime - startSeconds) / 1000.0 + "s");
+                LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + CLOCK.elapsedSeconds() + "s");
             }
         }
     }

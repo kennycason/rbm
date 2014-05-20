@@ -173,7 +173,7 @@ public class TestRBM {
         final Matrix jetMatrix = new MatrixGrayscaleImageEncoder().encode(jetImage);
 
         final RBM rbm = RBM_FACTORY.build(jetMatrix.cols(), 100);
-        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(1000));
+        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(250));
 
         cdRBM.learn(jetMatrix);
 
