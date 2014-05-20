@@ -20,6 +20,17 @@ Inputs: [[0.0, 0.0, 0.0, 1.0, 1.0, 0.0] [0.0, 0.0, 1.0, 1.0, 0.0, 0.0]]
 Outputs: [0.0, 0.0, 1.0, 1.0, 1.0, 0.0] [0.0, 0.0, 1.0, 1.0, 0.0, 0.0]]
 ```
 
+Image Recognition
+
+Input a 100x63 pixel image of a fighter jet at 24bit color resolution. Each RGB value is encoded as a 24 bit vector making a total input size of 100 x 24 x 63 bits.
+<table>
+   <tr>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/fighter_jet_small.jpg" width="200"/></td>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/output/fighter_rendered_small_rendered_24bit.jpg" width="200"/></td>
+   </tr>
+</table>
+
+
 Number Recognition
 ```
 // INPUT
