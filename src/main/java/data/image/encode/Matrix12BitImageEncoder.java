@@ -9,11 +9,11 @@ import java.awt.image.BufferedImage;
 /**
  * Created by kenny on 5/20/14.
  */
-public class Matrix24BitImageEncoder implements MatrixImageEncoder {
+public class Matrix12BitImageEncoder implements MatrixImageEncoder {
 
     private static final int RGB_BITS = 24;
 
-    private static final int BITS = 24;
+    private static final int BITS = 12;
 
     private static final int HIGH_BIT_FLAG = 0b1000_0000_0000_0000_0000_0000;
 

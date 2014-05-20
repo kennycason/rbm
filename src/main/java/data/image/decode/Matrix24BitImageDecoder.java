@@ -10,6 +10,10 @@ import java.awt.image.BufferedImage;
  */
 public class Matrix24BitImageDecoder implements MatrixImageDecoder {
 
+    private static final int RGB_BITS = 24;
+
+    private static final int BITS = 24;
+
     private static final int HIGH_BIT_FLAG = 0b100000000000000000000000;
 
     private int rows = 1;
@@ -22,7 +26,7 @@ public class Matrix24BitImageDecoder implements MatrixImageDecoder {
 
     @Override
     public Image decode(final Matrix matrix) {
-        cols = matrix.cols() / 24 / rows;
+        cols = matrix.cols() / BITS / rows;
         BufferedImage bi = new BufferedImage(cols, rows, BufferedImage.TYPE_INT_RGB);
         int y = 0;
         for(int x = 0; x < cols * rows; x++) {
@@ -39,12 +43,12 @@ public class Matrix24BitImageDecoder implements MatrixImageDecoder {
         int offset = 0;
         int flag = HIGH_BIT_FLAG;
         while(flag > 0) {
-            boolean set = matrix.get(0, ((x * 24) + offset)) > 0.5; // todo add a threshold variable
+            boolean set = matrix.get(0, ((x * BITS) + offset)) > 0.5; // todo add a threshold variable
             if(set) {
                 rgb += flag;
             }
             offset++;
-            flag >>= 1;
+            flag >>= RGB_BITS / BITS;
         }
         bi.setRGB(x % cols, y, rgb);
     }

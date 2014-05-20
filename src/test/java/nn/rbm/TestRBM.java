@@ -134,7 +134,7 @@ public class TestRBM {
 
     @Test
     public void image() {
-        final Image jetImage = new Image("/data/fighter_jet_micro.jpg");
+        final Image jetImage = new Image("/data/fighter_jet_small.jpg");
         final Matrix jetMatrix = new Matrix24BitImageEncoder().encode(jetImage);
 
         final RBM rbm = RBM_FACTORY.build(jetMatrix.cols(), 100);
@@ -144,7 +144,7 @@ public class TestRBM {
 
         final Matrix hidden = cdRBM.runVisible(jetMatrix);
         final Matrix visual = cdRBM.runHidden(hidden);
-        final Image outImage = new Matrix24BitImageDecoder(19).decode(visual);
+        final Image outImage = new Matrix24BitImageDecoder(19).decode(visual); // 19/63/250
         outImage.save("/tmp/fighter_rendered.jpg");
     }
 

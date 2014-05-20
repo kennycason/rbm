@@ -8,11 +8,11 @@ import java.awt.image.BufferedImage;
 /**
  * Created by kenny on 5/20/14.
  */
-public class Matrix8BitImageDecoder implements MatrixImageDecoder {
+public class Matrix12BitImageDecoder implements MatrixImageDecoder {
 
     private static final int RGB_BITS = 24;
 
-    private static final int BITS = 8;
+    private static final int BITS = 12;
 
     private static final int HIGH_BIT_FLAG = 0b100000000000000000000000;
 
@@ -20,7 +20,7 @@ public class Matrix8BitImageDecoder implements MatrixImageDecoder {
 
     private int cols = 1;
 
-    public Matrix8BitImageDecoder(int rows) {
+    public Matrix12BitImageDecoder(int rows) {
         this.rows = rows;
     }
 
