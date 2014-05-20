@@ -2,6 +2,7 @@ package nn.rbm;
 
 import data.image.Image;
 import data.image.decode.Matrix24BitImageDecoder;
+import data.image.decode.MatrixGrayscaleImageDecoder;
 import data.image.encode.Matrix24BitImageEncoder;
 import data.image.encode.MatrixGrayscaleImageEncoder;
 import data.mnist.MNISTImageLoader;
@@ -168,18 +169,18 @@ public class TestRBM {
 
     @Test
     public void imageGrayScale() {
-        final Image jetImage = new Image("/data/fighter_jet_micro.jpg");
+        final Image jetImage = new Image("/data/fighter_jet_small.jpg");
         final Matrix jetMatrix = new MatrixGrayscaleImageEncoder().encode(jetImage);
 
         final RBM rbm = RBM_FACTORY.build(jetMatrix.cols(), 100);
-        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(10000));
+        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(1000));
 
         cdRBM.learn(jetMatrix);
 
         final Matrix hidden = cdRBM.runVisible(jetMatrix);
         final Matrix visual = cdRBM.runHidden(hidden);
-        final Image outImage = new data.image.decode.MatrixGrayscaleImageDecoder(19).decode(visual); // 19/63/250
-        outImage.save("/tmp/fighter_rendered.jpg");
+        final Image outImage = new MatrixGrayscaleImageDecoder(63).decode(visual); // 19/63/250
+        outImage.save("/tmp/fighter_rendered_small_grayscale.jpg");
     }
 
     @Test
