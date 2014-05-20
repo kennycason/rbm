@@ -9,6 +9,17 @@ public class PrettyPrint {
 
     private PrettyPrint() {}
 
+    public static String toString(Object[] array) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("[\n");
+        for(Object a : array) {
+            stringBuilder.append(a);
+            stringBuilder.append('\n');
+        }
+        stringBuilder.append("]");
+        return stringBuilder.toString();
+    }
+
     public static String toString(double[][] arrays) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("[\n");

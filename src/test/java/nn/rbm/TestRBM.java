@@ -1,9 +1,16 @@
 package nn.rbm;
 
+import data.image.Image;
+import data.image.decode.Matrix24BitImageDecoder;
+import data.image.encode.Matrix24BitImageEncoder;
 import data.mnist.MNISTImageLoader;
 import math.matrix.ImmutableMatrix;
 import math.matrix.Matrix;
+import nn.rbm.deep.DeepRBM;
+import nn.rbm.deep.LayerParameters;
+import nn.rbm.factory.RandomRBMFactory;
 import nn.rbm.learn.ContrastiveDivergenceRBM;
+import nn.rbm.learn.DeepContrastiveDivergenceRBM;
 import nn.rbm.learn.LearningParameters;
 import org.apache.log4j.Logger;
 import org.junit.Ignore;
@@ -19,9 +26,10 @@ public class TestRBM {
 
     private static final Logger LOGGER = Logger.getLogger(TestRBM.class);
 
+    private static final RandomRBMFactory RBM_FACTORY = new RandomRBMFactory();
     @Test
     public void train() {
-        final RBM rbm = RBMFactory.buildRandomRBM(6, 3);
+        final RBM rbm = RBM_FACTORY.build(6, 3);
         final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(25000));
         LOGGER.info(rbm);
 
@@ -38,7 +46,7 @@ public class TestRBM {
 
     @Test
     public void daydream() {
-        final RBM rbm = RBMFactory.buildRandomRBM(6, 4);
+        final RBM rbm = RBM_FACTORY.build(6, 4);
         final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(25000));
 
         cdRBM.learn(buildBetterSampleTrainingData());
@@ -54,7 +62,7 @@ public class TestRBM {
 
         final int imageDim = dataSet.dim() / dataSet.rows(); // 784
 
-        final RBM rbm = RBMFactory.buildRandomRBM(imageDim, 200);
+        final RBM rbm = RBM_FACTORY.build(imageDim, 200);
         final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(5000));
 
         LOGGER.info("\n" + PrettyPrint.toPixelBox(dataSet.row(0), 28, 0.5));
@@ -76,7 +84,7 @@ public class TestRBM {
 
         final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
 
-        final RBM rbm = RBMFactory.buildRandomRBM(imageDim, 25);
+        final RBM rbm = RBM_FACTORY.build(imageDim, 25);
         final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(15000));
 
         final Matrix trainingSet = new ImmutableMatrix(new double[][] {
@@ -111,7 +119,7 @@ public class TestRBM {
 
         final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
 
-        final RBM rbm = RBMFactory.buildRandomRBM(imageDim, 20);
+        final RBM rbm = RBM_FACTORY.build(imageDim, 20);
         final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(15000));
         final Matrix trainingData = new ImmutableMatrix(new double[][] { totalDataSet.row(0) });
 
@@ -122,8 +130,57 @@ public class TestRBM {
         final Matrix hidden = cdRBM.runVisible(trainingData);
         final Matrix visual = cdRBM.runHidden(hidden);
         LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
+    }
+
+    @Test
+    public void image() {
+        final Image jetImage = new Image("/data/fighter_jet_micro.jpg");
+        final Matrix jetMatrix = new Matrix24BitImageEncoder().encode(jetImage);
+
+        final RBM rbm = RBM_FACTORY.build(jetMatrix.cols(), 100);
+        final ContrastiveDivergenceRBM cdRBM = new ContrastiveDivergenceRBM(rbm, new LearningParameters().setEpochs(10000));
+
+        cdRBM.learn(jetMatrix);
+
+        final Matrix hidden = cdRBM.runVisible(jetMatrix);
+        final Matrix visual = cdRBM.runHidden(hidden);
+        final Image outImage = new Matrix24BitImageDecoder(19).decode(visual);
+        outImage.save("/tmp/fighter_rendered.jpg");
+    }
 
 
+
+
+    @Test
+    public void deepRBM() {
+        // 28 * 28 input (784)
+        final LayerParameters[] layerParameters = new LayerParameters[] {
+                new LayerParameters().setNumRBMS(16).setVisibleUnitsPerRBM(49).setHiddenUnitsPerRBM(10),    // 784 in, 160 out
+                new LayerParameters().setNumRBMS(8).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),     // 160 in, 80 out
+                new LayerParameters().setNumRBMS(4).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),     // 80 in, 40 out
+                new LayerParameters().setNumRBMS(2).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),     // 40 in, 20 out
+                new LayerParameters().setNumRBMS(1).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(100),    // 20 in, 100 out
+        };
+
+        DeepRBM deepRBM = new DeepRBM(layerParameters, RBM_FACTORY);
+        // LOGGER.info(deepRBM);
+
+
+        final MNISTImageLoader mnistImageLoader = new MNISTImageLoader();
+        final Matrix totalDataSet = mnistImageLoader.loadIdx3("/data/train-images-idx3-ubyte").divide(255.0);
+
+        final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
+
+        final DeepContrastiveDivergenceRBM cdRBM = new DeepContrastiveDivergenceRBM(deepRBM, new LearningParameters().setEpochs(1000));
+        final Matrix trainingData = new ImmutableMatrix(new double[][] { totalDataSet.row(0) });
+
+        LOGGER.info("\n" + PrettyPrint.toPixelBox(trainingData.row(0), 28, 0.5));
+
+        cdRBM.learn(trainingData);
+
+        final Matrix hidden = cdRBM.runVisible(trainingData);
+        final Matrix visual = cdRBM.runHidden(hidden);
+        LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
     }
 
 

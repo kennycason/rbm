@@ -1,6 +1,8 @@
-package nn.rbm;
+package nn.rbm.factory;
 
 import math.matrix.Matrix;
+import nn.rbm.Layer;
+import nn.rbm.RBM;
 import org.apache.log4j.Logger;
 
 import java.util.Random;
@@ -8,25 +10,18 @@ import java.util.Random;
 /**
  * Created by kenny on 5/12/14.
  */
-public class RBMFactory {
+public class RandomRBMFactory implements RBMFactory {
 
-    private static final Logger LOGGER = Logger.getLogger(RBMFactory.class);
+    private static final Logger LOGGER = Logger.getLogger(RandomRBMFactory.class);
 
     private static final Random RANDOM = new Random();
 
-    private RBMFactory() {}
+    public RandomRBMFactory() {}
 
-    public static RBM buildRandomRBM(final int numVisibleNodes, final int numHiddenNodes) {
+    @Override
+    public RBM build(final int numVisibleNodes, final int numHiddenNodes) {
         final Layer visible = new Layer(numVisibleNodes);
-        for(int i = 0; i < numVisibleNodes; i++) {
-            visible.setBias(i, randomWeight());
-        }
-
         final Layer hidden = new Layer(numHiddenNodes);
-        for(int i = 0; i < numHiddenNodes; i++) {
-            hidden.setBias(i, randomWeight());
-        }
-
         final RBM rbm = new RBM(visible, hidden);
 
         final Matrix weights = rbm.getWeights();

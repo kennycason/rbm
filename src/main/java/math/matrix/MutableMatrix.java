@@ -2,6 +2,9 @@ package math.matrix;
 
 import com.google.common.base.Function;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by kenny on 5/13/14.
  */
@@ -36,13 +39,23 @@ public class MutableMatrix extends Matrix {
     }
 
     @Override
-    public Matrix append(final Matrix m2) {
-        return new MutableMatrix(append(this.m, m2.m));
+    public Matrix appendRows(final Matrix m2) {
+        return new MutableMatrix(appendRows(this.m, m2.m));
+    }
+
+    @Override
+    public List<Matrix> splitColumns(int pieces) {
+        final List<double[][]> split = super.splitColumns(this.m, pieces);
+        final List<Matrix> matrices = new ArrayList<>(split.size());
+        for(double[][] piece : split) {
+            matrices.add(new MutableMatrix(piece));
+        }
+        return matrices;
     }
 
     @Override
     public Matrix dot(final Matrix m2) {
-        if(cols != m2.rows) { throw new IllegalArgumentException("Matrices must be in form of A_n_m and B_m_p"); }
+        if(cols != m2.rows) { throw new IllegalArgumentException("Matrice m1 cols must equal m2 rows"); }
 
         final double[][] product = new double[rows][m2.cols];
         for(int i = 0; i < rows; i++) {

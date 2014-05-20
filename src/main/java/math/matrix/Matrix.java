@@ -3,6 +3,8 @@ package math.matrix;
 import com.google.common.base.Function;
 import utils.PrettyPrint;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -90,9 +92,11 @@ public abstract class Matrix {
 
     public abstract Matrix transpose();
 
-    public abstract Matrix fill(double value);
+    public abstract Matrix fill(final double value);
 
-    public abstract Matrix append(final Matrix m2);
+    public abstract Matrix appendRows(final Matrix m2);
+
+    public abstract List<Matrix> splitColumns(final int pieces);
 
     @Override
     public String toString() {
@@ -124,21 +128,55 @@ public abstract class Matrix {
         }
     }
 
-    public static double[][] append(final double[][] a, final double[][] b) {
-        if(cols(a) != cols(b)) {
-            throw new IllegalArgumentException("arrays must have same number of columns!");
+    public static double[][] appendRows(final double[][]... m) {
+        int rows = 0;
+        for(int i = 0; i < m.length; i++) {
+            rows += rows(m[0]);
         }
-        final int rowsA = rows(a);
-        final int rowsB = rows(b);
-        final int cols = cols(a);
-        final double[][] appended = new double[rowsA + rowsB][cols];
-        for(int i = 0; i < rowsA; i++) {
-            System.arraycopy(a[i], 0, appended[i], 0, cols);
-        }
-        for(int i = 0; i < rowsB; i++) {
-            System.arraycopy(b[i], 0, appended[i + rowsA], 0, cols);
+        final int cols = cols(m[0]);
+        final double[][] appended = new double[rows][cols];
+
+        int offset = 0;
+        for(int i = 0; i < m.length; i++) {
+            for(int j = 0; j < m[i].length; j++) {
+                System.arraycopy(m[i][j], 0, appended[offset], 0, cols);
+                offset++;
+            }
         }
         return appended;
+    }
+
+    public static double[][] appendColumns(final double[][]... m) {
+        int totalCols = 0;
+        for(int i = 0; i < m.length; i++) {
+            totalCols += cols(m[i]);
+        }
+        final int rows = rows(m[0]);
+        final double[][] appended = new double[rows][totalCols];
+        for(int k = 0; k < m.length; k++) {
+            final int cols = cols(m[k]);
+            for(int i = 0; i < rows; i++) {
+                final int start = k * cols;
+                System.arraycopy(m[k][i], 0, appended[i], start, cols);
+            }
+        }
+        return appended;
+    }
+
+    public static List<double[][]> splitColumns(final double[][] m, int numPieces) {
+        List<double[][]> pieces = new ArrayList<>(numPieces);
+        final int rows = rows(m);
+        final int cols = cols(m) / numPieces; // must be evenly splittable
+        for(int p = 0; p < numPieces; p++) {
+            final double[][] piece = new double[rows][cols];
+            for(int i = 0; i < rows; i++) {
+                for(int j = 0; j < cols; j++) {
+                    piece[i][j] = m[i][j + (p * cols)];
+                }
+            }
+            pieces.add(piece);
+        }
+        return pieces;
     }
 
     public static int rows(final double[][] m) {
