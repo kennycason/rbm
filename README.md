@@ -1,7 +1,8 @@
 Restricted Boltzmann Machine
 ===========
-This is a simple implementation modeled from http://blog.echen.me/2011/07/18/introduction-to-restricted-boltzmann-machines/
-Currently has no bias
+RBM Contrastive Divergence algorithm implemented from http://blog.echen.me/2011/07/18/introduction-to-restricted-boltzmann-machines/
+
+This version includes image encoding/decoding schemes, a deep CD RBM.
 
 Results RBM(visual=6,hidden=4)
 ```
