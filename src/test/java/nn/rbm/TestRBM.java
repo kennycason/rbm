@@ -203,7 +203,7 @@ public class TestRBM {
     }
 
     @Test
-    public void deepRBM() {
+    public void deepRBMSingleNumber() {
         // 28 * 28 input (784)
         final LayerParameters[] layerParameters = new LayerParameters[] {
                 new LayerParameters().setNumRBMS(16).setVisibleUnitsPerRBM(49).setHiddenUnitsPerRBM(10),    // 784 in, 160 out
@@ -234,6 +234,36 @@ public class TestRBM {
         LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
     }
 
+    @Test
+    public void deepRBM60KNumbers() {
+        // 28 * 28 input (784)
+        final LayerParameters[] layerParameters = new LayerParameters[] {
+                new LayerParameters().setNumRBMS(392).setVisibleUnitsPerRBM(2).setHiddenUnitsPerRBM(10),    // 784 in, 3920 out
+                new LayerParameters().setNumRBMS(196).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),    // 3920 in, 1960 out
+                new LayerParameters().setNumRBMS(88).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),     // 1960 in, 880 out
+                new LayerParameters().setNumRBMS(44).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),     // 880 in, 440 out
+                new LayerParameters().setNumRBMS(22).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),    // 440 in, 220 out
+                new LayerParameters().setNumRBMS(11).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),    // 220 in, 110 out
+                new LayerParameters().setNumRBMS(1).setVisibleUnitsPerRBM(110).setHiddenUnitsPerRBM(100),    // 110 in, 100 out
+        };
+
+        DeepRBM deepRBM = new DeepRBM(layerParameters, RBM_FACTORY);
+
+        final MNISTImageLoader mnistImageLoader = new MNISTImageLoader();
+        final Matrix trainingData = mnistImageLoader.loadIdx3("/data/train-images-idx3-ubyte").divide(255.0);  // 60,000 inputs
+        final Matrix testData = mnistImageLoader.loadIdx3("/data/t10k-images-idx3-ubyte").divide(255.0);  // 10,000 inputs
+
+        final DeepContrastiveDivergence contrastiveDivergence = new DeepContrastiveDivergence(new LearningParameters().setEpochs(1));
+
+        contrastiveDivergence.learn(deepRBM, trainingData);
+
+        for(double[] data : testData.data()) {
+            final Matrix dataMatrix = new ImmutableMatrix(new double[][] { data });
+            final Matrix hidden = contrastiveDivergence.runVisible(deepRBM, dataMatrix);
+            final Matrix visual = contrastiveDivergence.runHidden(deepRBM, hidden);
+            LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
+        }
+    }
 
     @Test
     public void imageSmall24BitDeepRBM() {
