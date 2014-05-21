@@ -235,6 +235,62 @@ public class TestRBM {
     }
 
 
+    @Test
+    public void imageSmall24BitDeepRBM() {
+        // 100 * 63 * 24 input (151200)
+        final LayerParameters[] layerParameters = new LayerParameters[] {
+                new LayerParameters().setNumRBMS(200).setVisibleUnitsPerRBM(756).setHiddenUnitsPerRBM(100),    // 151,200 in, 20,000 out
+                new LayerParameters().setNumRBMS(100).setVisibleUnitsPerRBM(200).setHiddenUnitsPerRBM(50),     // 20,000 in, 5,000 out
+                new LayerParameters().setNumRBMS(50).setVisibleUnitsPerRBM(100).setHiddenUnitsPerRBM(10),     // 5,000 in, 500 out
+                new LayerParameters().setNumRBMS(25).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),     // 500 in, 250 out
+                new LayerParameters().setNumRBMS(10).setVisibleUnitsPerRBM(25).setHiddenUnitsPerRBM(5),    // 250 in, 50 out
+                new LayerParameters().setNumRBMS(1).setVisibleUnitsPerRBM(50).setHiddenUnitsPerRBM(100),    // 50 in, 100 out
+        };
+
+        DeepRBM deepRBM = new DeepRBM(layerParameters, RBM_FACTORY);
+        final DeepContrastiveDivergence deepContrastiveDivergence = new DeepContrastiveDivergence(new LearningParameters().setEpochs(100));
+
+        final Image jetImage = new Image("/data/fighter_jet_small.jpg");
+        final Matrix jetMatrix = new Matrix24BitImageEncoder().encode(jetImage);
+
+        deepContrastiveDivergence.learn(deepRBM, jetMatrix);
+
+        final Matrix hidden = deepContrastiveDivergence.runVisible(deepRBM, jetMatrix);
+        final Matrix visual = deepContrastiveDivergence.runHidden(deepRBM, hidden);
+        final Image outImage = new Matrix24BitImageDecoder(63).decode(visual); // 19/63/250
+        outImage.save("/tmp/fighter_rendered_small_24bit_deep.jpg");
+    }
+
+
+    @Test
+    public void imageLarge24BitDeepRBM() {
+        // 400 * 250 * 24 input (2,400,000)
+        final LayerParameters[] layerParameters = new LayerParameters[] {
+                new LayerParameters().setNumRBMS(5000).setVisibleUnitsPerRBM(480).setHiddenUnitsPerRBM(100),    // 2,400,000 in, 500,000 out
+                new LayerParameters().setNumRBMS(2500).setVisibleUnitsPerRBM(200).setHiddenUnitsPerRBM(50),     // 500,000 in, 125,000 out
+                new LayerParameters().setNumRBMS(1250).setVisibleUnitsPerRBM(100).setHiddenUnitsPerRBM(10),     // 125,000 in, 12,500 out
+                new LayerParameters().setNumRBMS(625).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),     // 12,500 in, 6,250 out
+                new LayerParameters().setNumRBMS(250).setVisibleUnitsPerRBM(25).setHiddenUnitsPerRBM(5),    // 6,250 in, 1,250 out
+                new LayerParameters().setNumRBMS(125).setVisibleUnitsPerRBM(10).setHiddenUnitsPerRBM(5),    // 1,250 in, 625 out
+                new LayerParameters().setNumRBMS(25).setVisibleUnitsPerRBM(25).setHiddenUnitsPerRBM(5),    // 625 in, 125 out
+                new LayerParameters().setNumRBMS(1).setVisibleUnitsPerRBM(125).setHiddenUnitsPerRBM(100),    // 125 in, 100 out
+        };
+
+        DeepRBM deepRBM = new DeepRBM(layerParameters, RBM_FACTORY);
+        final DeepContrastiveDivergence deepContrastiveDivergence = new DeepContrastiveDivergence(new LearningParameters().setEpochs(11));
+
+        final Image jetImage = new Image("/data/fighter_jet.jpg");
+        final Matrix jetMatrix = new Matrix24BitImageEncoder().encode(jetImage);
+
+        deepContrastiveDivergence.learn(deepRBM, jetMatrix);
+
+        final Matrix hidden = deepContrastiveDivergence.runVisible(deepRBM, jetMatrix);
+        final Matrix visual = deepContrastiveDivergence.runHidden(deepRBM, hidden);
+        final Image outImage = new Matrix24BitImageDecoder(250).decode(visual); // 19/63/250
+        outImage.save("/tmp/fighter_rendered_large_24bit_deep.jpg");
+    }
+
+
     private static Matrix buildBetterSampleTrainingData() {
         return new ImmutableMatrix(
                 new double[][] {
