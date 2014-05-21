@@ -14,13 +14,13 @@ public abstract class Matrix {
 
     protected static final Random RANDOM = new Random();
 
-    protected final int rows;
+    protected int rows;
 
-    protected final int cols;
+    protected int cols;
 
-    protected final int dim;
+    protected int dim;
 
-    protected final double[][] m;
+    protected double[][] m;
 
     protected Matrix(final int rows, final int cols) {
         this.rows = rows;
@@ -30,18 +30,23 @@ public abstract class Matrix {
     }
 
     protected Matrix(final double[][] m) {
+        update(m);
+    }
+
+    protected Matrix(final double[] m) {
+        update(new double[][] { m });
+    }
+
+    protected Matrix(Matrix m) {
+        update(m.data());
+    }
+
+    protected void update(final double[][] m) {
         this.rows = rows(m);
         this.cols = cols(m);
         this.dim = this.rows * this.cols;
         this.m = new double[this.rows][this.cols];
         copy(m, this.m);
-    }
-
-    protected Matrix(Matrix m) {
-        this.rows = m.rows();
-        this.cols = m.cols();
-        this.dim = m.dim();
-        this.m = copy(m.data());
     }
 
     public abstract double[][] data();
@@ -95,6 +100,8 @@ public abstract class Matrix {
     public abstract Matrix fill(final double value);
 
     public abstract Matrix appendRows(final Matrix m2);
+
+    public abstract Matrix appendColumns(final Matrix m2);
 
     public abstract List<Matrix> splitColumns(final int pieces);
 

@@ -16,6 +16,7 @@ import nn.rbm.factory.RandomRBMFactory;
 import nn.rbm.learn.ContrastiveDivergence;
 import nn.rbm.learn.DeepContrastiveDivergence;
 import nn.rbm.learn.LearningParameters;
+import nn.rbm.learn.RecurrentContrastiveDivergence;
 import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -109,7 +110,7 @@ public class TestRBM {
         contrastiveDivergence.learn(rbm, trainingSet);
 
         for(int i = 0; i < trainingSet.rows(); i++) {
-            final Matrix testData = new ImmutableMatrix(new double[][] {trainingSet.row(i)});
+            final Matrix testData = new ImmutableMatrix(trainingSet.row(i));
             final Matrix hidden = contrastiveDivergence.runVisible(rbm, testData);
             final Matrix visual = contrastiveDivergence.runHidden(rbm, hidden);
             LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
@@ -126,7 +127,7 @@ public class TestRBM {
 
         final RBM rbm = RBM_FACTORY.build(imageDim, 20);
         final ContrastiveDivergence contrastiveDivergence = new ContrastiveDivergence(new LearningParameters().setEpochs(15000));
-        final Matrix trainingData = new ImmutableMatrix(new double[][] { totalDataSet.row(0) });
+        final Matrix trainingData = new ImmutableMatrix(totalDataSet.row(0));
 
         LOGGER.info("\n" + PrettyPrint.toPixelBox(trainingData.row(0), 28, 0.5));
 
@@ -222,7 +223,7 @@ public class TestRBM {
         final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
 
         final DeepContrastiveDivergence contrastiveDivergence = new DeepContrastiveDivergence(new LearningParameters().setEpochs(500));
-        final Matrix trainingData = new ImmutableMatrix(new double[][] { totalDataSet.row(0) });
+        final Matrix trainingData = new ImmutableMatrix(totalDataSet.row(0));
 
         LOGGER.info("\n" + PrettyPrint.toPixelBox(trainingData.row(0), 28, 0.5));
 
@@ -258,7 +259,7 @@ public class TestRBM {
         contrastiveDivergence.learn(deepRBM, trainingData);
 
         for(double[] data : testData.data()) {
-            final Matrix dataMatrix = new ImmutableMatrix(new double[][] { data });
+            final Matrix dataMatrix = new ImmutableMatrix(data);
             final Matrix hidden = contrastiveDivergence.runVisible(deepRBM, dataMatrix);
             final Matrix visual = contrastiveDivergence.runHidden(deepRBM, hidden);
             LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
@@ -331,6 +332,26 @@ public class TestRBM {
                         {0,0,1,1,0,0},
                         {0,0,1,1,1,0}}
         );
+    }
+
+    @Test
+    public void recurrentNumber() {
+        final MNISTImageLoader mnistImageLoader = new MNISTImageLoader();
+        final Matrix totalDataSet = mnistImageLoader.loadIdx3("/data/train-images-idx3-ubyte").divide(255.0);
+
+        final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
+
+        final RBM rbm = RBM_FACTORY.build(imageDim, 20);
+        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(100));
+        final Matrix trainingData = new ImmutableMatrix(totalDataSet.row(0));
+
+        LOGGER.info("\n" + PrettyPrint.toPixelBox(trainingData.row(0), 28, 0.5));
+
+        recurrentContrastiveDivergence.learn(rbm, trainingData);
+
+        final Matrix hidden = recurrentContrastiveDivergence.runVisible(rbm, trainingData);
+        final Matrix visual = recurrentContrastiveDivergence.runHidden(rbm, hidden);
+        LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
     }
 
 }

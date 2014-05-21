@@ -1,6 +1,5 @@
 package nn.rbm.learn;
 
-import com.google.common.base.Function;
 import math.matrix.ImmutableMatrix;
 import math.matrix.Matrix;
 import nn.rbm.RBM;
@@ -19,18 +18,12 @@ public class DeepContrastiveDivergence {
 
     private static final Logger LOGGER = Logger.getLogger(DeepContrastiveDivergence.class);
 
-    private final ContrastiveDivergence contrastiveDivergence;
-
     private static final Clock CLOCK = Clock.getInstance();
 
-    private final LearningParameters learningParameters;
-
-    private final Function<Double, Double> logisticsFunction;
+    private final ContrastiveDivergence contrastiveDivergence;
 
     public DeepContrastiveDivergence(final LearningParameters learningParameters) {
-        this.learningParameters = learningParameters;
-        this.logisticsFunction = learningParameters.getLogisticsFunction();
-        this.contrastiveDivergence = new ContrastiveDivergence(this.learningParameters);
+        this.contrastiveDivergence = new ContrastiveDivergence(learningParameters);
     }
 
     /*

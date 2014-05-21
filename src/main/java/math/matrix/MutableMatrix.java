@@ -18,6 +18,10 @@ public class MutableMatrix extends Matrix {
         super(m);
     }
 
+    public MutableMatrix(final double[] m) {
+        super(m);
+    }
+
     public MutableMatrix(final Matrix m) {
         super(m);
     }
@@ -40,12 +44,19 @@ public class MutableMatrix extends Matrix {
 
     @Override
     public Matrix appendRows(final Matrix m2) {
-        return new MutableMatrix(appendRows(this.m, m2.m));
+        update(appendRows(this.m, m2.m));
+        return this;
+    }
+
+    @Override
+    public Matrix appendColumns(Matrix m2) {
+        update(appendColumns(this.m, m2.data()));
+        return this;
     }
 
     @Override
     public List<Matrix> splitColumns(int pieces) {
-        final List<double[][]> split = super.splitColumns(this.m, pieces);
+        final List<double[][]> split = splitColumns(this.m, pieces);
         final List<Matrix> matrices = new ArrayList<>(split.size());
         for(double[][] piece : split) {
             matrices.add(new MutableMatrix(piece));

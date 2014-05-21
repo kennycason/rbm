@@ -19,6 +19,10 @@ public class ImmutableMatrix extends Matrix {
         super(m);
     }
 
+    public ImmutableMatrix(final double[] m) {
+        super(m);
+    }
+
     public ImmutableMatrix(final Matrix m) {
         super(m);
     }
@@ -45,6 +49,12 @@ public class ImmutableMatrix extends Matrix {
     @Override
     public Matrix appendRows(final Matrix m2) {
         return new ImmutableMatrix(appendRows(this.m, m2.m));
+    }
+
+    @Override
+    public Matrix appendColumns(Matrix m2) {
+        final double[][] m2Data = m2.data();
+        return new ImmutableMatrix(appendColumns(this.m, m2Data));
     }
 
     @Override
