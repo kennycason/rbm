@@ -16,27 +16,24 @@ import java.util.Set;
  *
  *  * http://blog.echen.me/2011/07/18/introduction-to-restricted-boltzmann-machines/
  */
-public class ContrastiveDivergenceRBM {
+public class ContrastiveDivergence {
 
-    private static final Logger LOGGER = Logger.getLogger(ContrastiveDivergenceRBM.class);
+    private static final Logger LOGGER = Logger.getLogger(ContrastiveDivergence.class);
 
     private static final Random RANDOM = new Random();
 
     private static final Clock CLOCK = Clock.getInstance();
 
-    private final RBM rbm;
-
     private final LearningParameters learningParameters;
 
     private final Function<Double, Double> logisticsFunction;
 
-    public ContrastiveDivergenceRBM(final RBM rbm, final LearningParameters learningParameters) {
-        this.rbm = rbm;
+    public ContrastiveDivergence(final LearningParameters learningParameters) {
         this.learningParameters = learningParameters;
         this.logisticsFunction = learningParameters.getLogisticsFunction();
     }
 
-    public void learn(final Matrix dataSet) {
+    public void learn(final RBM rbm, final Matrix dataSet) {
         final int numberSamples = dataSet.rows();
         final Matrix weights = rbm.getWeights();
 
@@ -83,9 +80,9 @@ public class ContrastiveDivergenceRBM {
         hidden_states, A matrix where each row consists of the hidden units activated from the visible
         units in the data matrix passed in.
      */
-    public Matrix runVisible(final Matrix dataSet) {
+    public Matrix runVisible(final RBM rbm, final Matrix dataSet) {
         final int numberSamples = dataSet.rows();
-        final Matrix weights = this.rbm.getWeights();
+        final Matrix weights = rbm.getWeights();
 
         // Calculate the activations of the hidden units.
         final Matrix hiddenActivations = dataSet.dot(weights);
@@ -103,9 +100,9 @@ public class ContrastiveDivergenceRBM {
         visible_states, A matrix where each row consists of the visible units activated from the hidden
         units in the data matrix passed in.
      */
-    public Matrix runHidden(final Matrix dataSet) {
+    public Matrix runHidden(final RBM rbm, final Matrix dataSet) {
         final int numberSamples = dataSet.rows();
-        final Matrix weights = this.rbm.getWeights();
+        final Matrix weights = rbm.getWeights();
 
         // Calculate the activations of the hidden units.
         final Matrix visibleActivations = dataSet.dot(ImmutableMatrix.transpose(weights));
@@ -124,9 +121,9 @@ public class ContrastiveDivergenceRBM {
         Note that we only initialize the network *once*, so these samples are correlated.
         samples: A matrix, where each row is a sample of the visible units produced while the network was daydreaming.
      */
-    public Set<Matrix> dayDream(final Matrix dataSet, final int dreamSamples) {
+    public Set<Matrix> dayDream(final RBM rbm, final Matrix dataSet, final int dreamSamples) {
         final int numberSamples = dataSet.rows();
-        final Matrix weights = this.rbm.getWeights();
+        final Matrix weights = rbm.getWeights();
 
         // Take the first sample from a uniform distribution.
         double[] sample = dataSet.data()[RANDOM.nextInt(numberSamples)];
@@ -173,18 +170,6 @@ public class ContrastiveDivergenceRBM {
             }
         }
         return new ImmutableMatrix(stateMatrix);
-    }
-
-    public RBM getRbm() {
-        return rbm;
-    }
-
-    @Override
-    public String toString() {
-        return "ContrastiveDivergenceRBM{" +
-                "rbm=" + rbm +
-                ", learningParameters=" + learningParameters +
-                '}';
     }
 
 }

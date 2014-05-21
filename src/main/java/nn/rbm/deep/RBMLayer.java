@@ -15,8 +15,8 @@ public class RBMLayer {
         this.rbms = rbms;
     }
 
-    public RBM[] getRbms() {
-        return rbms;
+    public RBM getRBM(int r) {
+        return rbms[r];
     }
 
     public int size() {

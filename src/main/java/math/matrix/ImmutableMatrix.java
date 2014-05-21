@@ -63,7 +63,7 @@ public class ImmutableMatrix extends Matrix {
     }
 
     public static Matrix dot(final Matrix m1, final Matrix m2) {
-        if(m1.cols != m2.rows) { throw new IllegalArgumentException("Matrice m1 cols must equal m2 rows"); }
+        if(m1.cols != m2.rows) { throw new IllegalArgumentException("Matrix m1 cols must equal m2 rows"); }
 
         final double[][] product = new double[m1.rows][m2.cols];
         for(int i = 0; i < m1.rows; i++) {

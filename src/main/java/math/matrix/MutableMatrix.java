@@ -55,7 +55,7 @@ public class MutableMatrix extends Matrix {
 
     @Override
     public Matrix dot(final Matrix m2) {
-        if(cols != m2.rows) { throw new IllegalArgumentException("Matrice m1 cols must equal m2 rows"); }
+        if(cols != m2.rows) { throw new IllegalArgumentException("Matrix m1 cols must equal m2 rows"); }
 
         final double[][] product = new double[rows][m2.cols];
         for(int i = 0; i < rows; i++) {

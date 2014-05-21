@@ -131,7 +131,7 @@ public abstract class Matrix {
     public static double[][] appendRows(final double[][]... m) {
         int rows = 0;
         for(int i = 0; i < m.length; i++) {
-            rows += rows(m[0]);
+            rows += rows(m[i]);
         }
         final int cols = cols(m[0]);
         final double[][] appended = new double[rows][cols];
