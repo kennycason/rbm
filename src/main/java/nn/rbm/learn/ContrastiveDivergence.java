@@ -45,7 +45,7 @@ public class ContrastiveDivergence {
             final Matrix positiveHiddenActivations = dataSet.dot(weights);
 
             final Matrix positiveHiddenProbabilities = positiveHiddenActivations.apply(logisticsFunction);
-            final Matrix random = ImmutableMatrix.random(numberSamples, rbm.getHidden().getSize());
+            final Matrix random = ImmutableMatrix.random(numberSamples, rbm.getHiddenSize());
             final Matrix positiveHiddenStates = buildStatesFromActivationsMatrix(positiveHiddenProbabilities, random);
 
             // Note that we're using the activation *probabilities* of the hidden states, not the hidden states themselves, when computing associations.
@@ -68,7 +68,7 @@ public class ContrastiveDivergence {
             final double error = dataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
 
             if(epoch % 10 == 0) {
-                LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + CLOCK.elapsedSeconds() + "s");
+                LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + CLOCK.elapsedMillis() + "ms");
                 CLOCK.reset();
             }
         }
@@ -89,7 +89,7 @@ public class ContrastiveDivergence {
         // Calculate the probabilities of turning the hidden units on.
         final Matrix hiddenProbabilities = hiddenActivations.apply(logisticsFunction);
         // Turn the hidden units on with their specified probabilities.
-        final Matrix hiddenStates = buildStatesFromActivationsMatrix(hiddenProbabilities, ImmutableMatrix.random(numberSamples, rbm.getHidden().getSize()));
+        final Matrix hiddenStates = buildStatesFromActivationsMatrix(hiddenProbabilities, ImmutableMatrix.random(numberSamples, rbm.getHiddenSize()));
 
         return hiddenStates;
     }
@@ -109,7 +109,7 @@ public class ContrastiveDivergence {
         // Calculate the probabilities of turning the visible units on.
         final Matrix visibleProbabilities = visibleActivations.apply(this.logisticsFunction);
         // Turn the visible units on with their specified probabilities.
-        final Matrix visibleStates = buildStatesFromActivationsMatrix(visibleProbabilities, ImmutableMatrix.random(numberSamples, rbm.getVisible().getSize()));
+        final Matrix visibleStates = buildStatesFromActivationsMatrix(visibleProbabilities, ImmutableMatrix.random(numberSamples, rbm.getVisibleSize()));
 
         return visibleStates;
     }
@@ -135,25 +135,23 @@ public class ContrastiveDivergence {
         // Note that we keep the hidden units binary states, but leave the visible units as real probabilities.
         // See section 3 of Hinton's "A Practical Guide to Training Restricted Boltzmann Machines" for more on why.
         for(int i = 0; i < dreamSamples; i++) {
-            rbm.getVisible().setValues(sample);
 
             // Calculate the activations of the hidden units.
-            final Matrix visibleValues = new ImmutableMatrix(new double[][]{rbm.getVisible().getValues()});
+            final Matrix visibleValues = new ImmutableMatrix(new double[][]{sample});
             samples.add(visibleValues);
 
             final Matrix hiddenActivations = visibleValues.dot(weights);
             // Calculate the probabilities of turning the hidden units on.
             final Matrix hiddenProbabilities = hiddenActivations.apply(this.logisticsFunction);
             // Turn the hidden units on with their specified probabilities.
-            final Matrix hiddenStates = buildStatesFromActivationsMatrix(hiddenProbabilities, ImmutableMatrix.random(numberSamples, rbm.getHidden().getSize()));
-
+            final Matrix hiddenStates = buildStatesFromActivationsMatrix(hiddenProbabilities, ImmutableMatrix.random(numberSamples, rbm.getHiddenSize()));
 
             // Calculate the activations of the hidden units.
             final Matrix visibleActivations = hiddenStates.dot(ImmutableMatrix.transpose(weights));
             // Calculate the probabilities of turning the visible units on.
             final Matrix visibleProbabilities = visibleActivations.apply(this.logisticsFunction);
             // Turn the visible units on with their specified probabilities.
-            final Matrix visibleStates = buildStatesFromActivationsMatrix(visibleProbabilities, ImmutableMatrix.random(numberSamples, rbm.getVisible().getSize()));
+            final Matrix visibleStates = buildStatesFromActivationsMatrix(visibleProbabilities, ImmutableMatrix.random(numberSamples, sample.length));
 
             sample = visibleStates.data()[0];
         }

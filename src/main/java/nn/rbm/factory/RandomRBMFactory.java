@@ -1,9 +1,7 @@
 package nn.rbm.factory;
 
 import math.matrix.Matrix;
-import nn.rbm.Layer;
 import nn.rbm.RBM;
-import org.apache.log4j.Logger;
 
 import java.util.Random;
 
@@ -12,17 +10,13 @@ import java.util.Random;
  */
 public class RandomRBMFactory implements RBMFactory {
 
-    private static final Logger LOGGER = Logger.getLogger(RandomRBMFactory.class);
-
     private static final Random RANDOM = new Random();
 
     public RandomRBMFactory() {}
 
     @Override
     public RBM build(final int numVisibleNodes, final int numHiddenNodes) {
-        final Layer visible = new Layer(numVisibleNodes);
-        final Layer hidden = new Layer(numHiddenNodes);
-        final RBM rbm = new RBM(visible, hidden);
+        final RBM rbm = new RBM(numVisibleNodes, numHiddenNodes);
 
         final Matrix weights = rbm.getWeights();
         for(int i = 0; i < numVisibleNodes; i++) {

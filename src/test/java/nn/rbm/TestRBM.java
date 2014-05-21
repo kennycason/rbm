@@ -31,6 +31,7 @@ public class TestRBM {
     private static final Logger LOGGER = Logger.getLogger(TestRBM.class);
 
     private static final RandomRBMFactory RBM_FACTORY = new RandomRBMFactory();
+
     @Test
     public void train() {
         final RBM rbm = RBM_FACTORY.build(6, 3);

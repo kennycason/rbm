@@ -9,24 +9,24 @@ import math.matrix.MutableMatrix;
  */
 public class RBM {
 
-    private Layer visible;
+    private final int visibleSize;
 
-    private Layer hidden;
+    private final int hiddenSize;
 
-    private Matrix weights;
+    private final Matrix weights;
 
-    public RBM(final Layer visible, final Layer hidden) {
-        this.visible = visible;
-        this.hidden = hidden;
-        this.weights = new MutableMatrix(new double[visible.getSize()][hidden.getSize()]);
+    public RBM(final int visibleSize, final int hiddenSize) {
+        this.visibleSize = visibleSize;
+        this.hiddenSize = hiddenSize;
+        this.weights = new MutableMatrix(new double[visibleSize][hiddenSize]);
     }
 
-    public Layer getVisible() {
-        return visible;
+    public int getVisibleSize() {
+        return visibleSize;
     }
 
-    public Layer getHidden() {
-        return hidden;
+    public int getHiddenSize() {
+        return hiddenSize;
     }
 
     public Matrix getWeights() {
@@ -36,8 +36,8 @@ public class RBM {
     @Override
     public String toString() {
         return "RBM{" +
-                "visible=" + visible +
-                ", hidden=" + hidden +
+                "visibleSize=" + visibleSize +
+                ", hiddenSize=" + hiddenSize +
                 ", weights=" + weights +
                 '}';
     }
