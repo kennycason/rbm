@@ -27,7 +27,8 @@ Input a 100x63 pixel image of a fighter jet at 24bit color resolution. Each RGB 
 <table>
    <tr>
       <td>Input<br/><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/fighter_jet_small.jpg" width="200"/></td>
-      <td>RBM Generated<br/><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/output/fighter_rendered_small_rendered_24bit.jpg" width="200"/></td>
+      <td>RBM Generated 24 bit<br/><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/output/fighter_rendered_small_rendered_24bit.jpg" width="200"/></td>
+      <td>RBM Generated 8 bit<br/><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/output/fighter_rendered_small_8bit.jpg" width="200"/></td>
    </tr>
 </table>
 
