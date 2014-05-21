@@ -35,9 +35,9 @@ Shallow RBM - Input a 100x63 pixel image of a fighter jet at 24bit color resolut
 Deep RBM - Input a 400*250 pixel image of a fighter jet at 24bit color resolution. Each RGB value is encoded as a 24 bit vector making a total input size of 400 * 24 * 250 bits. That's 2.4 Million inputs to be learned.
 <table>
    <tr>
-      <td>Input<br/><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/fighter_jet.jpg" width="300"/></td>
-      <td>1 Epoch<br/><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/output/fighter_rendered_small_24bit_deep_1_iteration.jpg" width="300"/></td>
-      <td>11 Epochs<br/><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/output/fighter_rendered_small_24bit_deep_11_iterations.jpg" width="300"/></td>
+      <td>Input<br/><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/fighter_jet.jpg" width="200"/></td>
+      <td>1 Epoch<br/><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/output/fighter_rendered_large_24bit_deep_1_iteration.jpg" width="200"/></td>
+      <td>11 Epochs<br/><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/output/fighter_rendered_large_24bit_deep_11_iterations.jpg" width="200"/></td>
    </tr>
 </table>
 
