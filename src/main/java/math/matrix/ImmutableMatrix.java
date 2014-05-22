@@ -19,7 +19,7 @@ public class ImmutableMatrix extends Matrix {
         super(m);
     }
 
-    public ImmutableMatrix(final double[] m) {
+    public ImmutableMatrix(final double... m) {
         super(m);
     }
 

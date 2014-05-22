@@ -7,9 +7,8 @@ import nn.rbm.RBM;
 import org.apache.log4j.Logger;
 import utils.Clock;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * Created by kenny on 5/15/14.
@@ -32,46 +31,50 @@ public class RecurrentContrastiveDivergence {
         this.logisticsFunction = learningParameters.getLogisticsFunction();
     }
 
-    public void learn(final RBM rbm, final Matrix dataSet) {
-        final int numberSamples = dataSet.rows();
+    /*
+      work in progress
+     */
+    public void learn(final RBM rbm, final List<Matrix> dataSets) {
+        final int numberSamples = dataSets.size();
         rbm.addVisibleNodes(rbm.getHiddenSize());
         final Matrix weights = rbm.getWeights();
-        LOGGER.info("weights 0: " + weights.rows() + "x" + weights.cols());
 
         LOGGER.info("Start Learning (" + numberSamples + " samples)");
         CLOCK.start();
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
 
-            final Matrix recurrentDataSet = dataSet.appendColumns(weights);
-            // Read training data and sample from the hidden later, positive CD phase, (reality phase)
-            final Matrix positiveHiddenActivations = recurrentDataSet.dot(weights);
+            for(Matrix dataSet : dataSets) {
+                final Matrix recurrentDataSet = dataSet.appendColumns(weights);
+                // Read training data and sample from the hidden later, positive CD phase, (reality phase)
+                final Matrix positiveHiddenActivations = recurrentDataSet.dot(weights);
 
-            final Matrix positiveHiddenProbabilities = positiveHiddenActivations.apply(logisticsFunction);
-            final Matrix random = ImmutableMatrix.random(numberSamples, rbm.getHiddenSize());
-            final Matrix positiveHiddenStates = buildStatesFromActivationsMatrix(positiveHiddenProbabilities, random);
+                final Matrix positiveHiddenProbabilities = positiveHiddenActivations.apply(logisticsFunction);
+                final Matrix random = ImmutableMatrix.random(numberSamples, rbm.getHiddenSize());
+                final Matrix positiveHiddenStates = buildStatesFromActivationsMatrix(positiveHiddenProbabilities, random);
 
-            // Note that we're using the activation *probabilities* of the hidden states, not the hidden states themselves, when computing associations.
-            // We could also use the states; see section 3 of Hinton's A Practical Guide to Training Restricted Boltzmann Machines" for more.
-            final Matrix positiveAssociations = recurrentDataSet.transpose().dot(positiveHiddenProbabilities);
+                // Note that we're using the activation *probabilities* of the hidden states, not the hidden states themselves, when computing associations.
+                // We could also use the states; see section 3 of Hinton's A Practical Guide to Training Restricted Boltzmann Machines" for more.
+                final Matrix positiveAssociations = recurrentDataSet.transpose().dot(positiveHiddenProbabilities);
 
-            // Reconstruct the visible units and sample again from the hidden units. negative CD phase, aka the daydreaming phase.
-            final Matrix negativeVisibleActivations = positiveHiddenStates.dot(ImmutableMatrix.transpose(weights));
-            final Matrix negativeVisibleProbabilities = negativeVisibleActivations.apply(logisticsFunction);
+                // Reconstruct the visible units and sample again from the hidden units. negative CD phase, aka the daydreaming phase.
+                final Matrix negativeVisibleActivations = positiveHiddenStates.dot(ImmutableMatrix.transpose(weights));
+                final Matrix negativeVisibleProbabilities = negativeVisibleActivations.apply(logisticsFunction);
 
-            final Matrix negativeHiddenActivations = negativeVisibleProbabilities.dot(weights);
-            final Matrix negativeHiddenProbabilities = negativeHiddenActivations.apply(logisticsFunction);
+                final Matrix negativeHiddenActivations = negativeVisibleProbabilities.dot(weights);
+                final Matrix negativeHiddenProbabilities = negativeHiddenActivations.apply(logisticsFunction);
 
-            // Note, again, that we're using the activation *probabilities* when computing associations, not the states themselves.
-            final Matrix negativeAssociations = negativeVisibleProbabilities.transpose().dot(negativeHiddenProbabilities);
+                // Note, again, that we're using the activation *probabilities* when computing associations, not the states themselves.
+                final Matrix negativeAssociations = negativeVisibleProbabilities.transpose().dot(negativeHiddenProbabilities);
 
-            // Update weights.
-            weights.add(positiveAssociations.subtract(negativeAssociations).divide(numberSamples).multiply(learningParameters.getLearningRate()));
+                // Update weights.
+                weights.add(positiveAssociations.subtract(negativeAssociations).divide(numberSamples).multiply(learningParameters.getLearningRate()));
 
-            final double error = recurrentDataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
+                final double error = recurrentDataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
 
-            if(epoch % 10 == 0) {
-                LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + CLOCK.elapsedMillis() + "ms");
-                CLOCK.reset();
+                if(epoch % 10 == 0) {
+                    LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + CLOCK.elapsedMillis() + "ms");
+                    CLOCK.reset();
+                }
             }
         }
     }
@@ -84,8 +87,9 @@ public class RecurrentContrastiveDivergence {
      */
     public Matrix runVisible(final RBM rbm, final Matrix dataSet) {
         final int numberSamples = dataSet.rows();
-        rbm.addVisibleNodes(rbm.getHiddenSize());
+
         final Matrix weights = rbm.getWeights();
+
         final Matrix recurrentDataSet = dataSet.appendColumns(weights);
 
         // Calculate the activations of the hidden units.
@@ -106,7 +110,7 @@ public class RecurrentContrastiveDivergence {
      */
     public Matrix runHidden(final RBM rbm, final Matrix dataSet) {
         final int numberSamples = dataSet.rows();
-        rbm.addVisibleNodes(rbm.getHiddenSize());
+
         final Matrix weights = rbm.getWeights();
 
         // Calculate the activations of the hidden units.
@@ -116,53 +120,11 @@ public class RecurrentContrastiveDivergence {
         // Turn the visible units on with their specified probabilities.
         final Matrix visibleStates = buildStatesFromActivationsMatrix(visibleProbabilities, ImmutableMatrix.random(numberSamples, rbm.getVisibleSize() + rbm.getHiddenSize()));
 
-        return visibleStates;
-    }
-
-    /*
-        Randomly initialize the visible units once, and start running alternating Gibbs sampling steps
-        (where each step consists of updating all the hidden units, and then updating all of the visible units),
-        taking a sample of the visible units at each step.
-        Note that we only initialize the network *once*, so these samples are correlated.
-        samples: A matrix, where each row is a sample of the visible units produced while the network was daydreaming.
-     */
-    public Set<Matrix> dayDream(final RBM rbm, final Matrix dataSet, final int dreamSamples) {
-        final int numberSamples = dataSet.rows();
-        rbm.addVisibleNodes(rbm.getHiddenSize());
-        final Matrix weights = rbm.getWeights();
-        final Matrix recurrentDataSet = dataSet.appendColumns(weights);
-
-        // Take the first sample from a uniform distribution.
-        double[] sample = recurrentDataSet.data()[RANDOM.nextInt(numberSamples)];
-
-        // store all samples history
-        final Set<Matrix> samples = new HashSet<>();
-
-        // Start the alternating Gibbs sampling.
-        // Note that we keep the hidden units binary states, but leave the visible units as real probabilities.
-        // See section 3 of Hinton's "A Practical Guide to Training Restricted Boltzmann Machines" for more on why.
-        for(int i = 0; i < dreamSamples; i++) {
-
-            // Calculate the activations of the hidden units.
-            final Matrix visibleValues = new ImmutableMatrix(sample);
-            samples.add(visibleValues);
-
-            final Matrix hiddenActivations = visibleValues.dot(weights);
-            // Calculate the probabilities of turning the hidden units on.
-            final Matrix hiddenProbabilities = hiddenActivations.apply(this.logisticsFunction);
-            // Turn the hidden units on with their specified probabilities.
-            final Matrix hiddenStates = buildStatesFromActivationsMatrix(hiddenProbabilities, ImmutableMatrix.random(numberSamples, rbm.getHiddenSize()));
-
-            // Calculate the activations of the hidden units.
-            final Matrix visibleActivations = hiddenStates.dot(ImmutableMatrix.transpose(weights));
-            // Calculate the probabilities of turning the visible units on.
-            final Matrix visibleProbabilities = visibleActivations.apply(this.logisticsFunction);
-            // Turn the visible units on with their specified probabilities.
-            final Matrix visibleStates = buildStatesFromActivationsMatrix(visibleProbabilities, ImmutableMatrix.random(numberSamples, sample.length));
-
-            sample = visibleStates.data()[0];
-        }
-        return samples;
+        // trim off recurrent input
+        final double[] copyOfFirstState = new double[rbm.getVisibleSize() - rbm.getHiddenSize()];
+        System.arraycopy(visibleStates.data()[0], 0, copyOfFirstState, 0, copyOfFirstState.length);
+        final Matrix visibleStatesTrimmed = new ImmutableMatrix(copyOfFirstState);
+        return visibleStatesTrimmed;
     }
 
     private static Matrix buildStatesFromActivationsMatrix(final Matrix activationMatrix, Matrix randomStateMatrix) {

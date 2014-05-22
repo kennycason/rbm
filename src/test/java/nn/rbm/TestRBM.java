@@ -1,6 +1,7 @@
 package nn.rbm;
 
 import data.image.Image;
+import data.image.decode.Matrix1BitImageDecoder;
 import data.image.decode.Matrix24BitImageDecoder;
 import data.image.decode.Matrix8BitImageDecoder;
 import data.image.decode.MatrixGrayscaleImageDecoder;
@@ -22,6 +23,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import utils.PrettyPrint;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -60,6 +64,19 @@ public class TestRBM {
         Set<Matrix> visualizations = contrastiveDivergence.dayDream(rbm, buildBetterSampleTrainingData(), 10);
         LOGGER.info(visualizations);
     }
+
+    private Matrix buildBetterSampleTrainingData() {
+        return new ImmutableMatrix(
+                new double[][] {
+                        {1,1,1,0,0,0},
+                        {1,0,1,0,0,0},
+                        {1,1,1,0,0,0},
+                        {0,0,1,1,1,0},
+                        {0,0,1,1,0,0},
+                        {0,0,1,1,1,0}}
+        );
+    }
+
 
     @Ignore
     public void numbers() {
@@ -151,7 +168,7 @@ public class TestRBM {
         final Matrix hidden = contrastiveDivergence.runVisible(rbm, jetMatrix);
         final Matrix visual = contrastiveDivergence.runHidden(rbm, hidden);
         final Image outImage = new Matrix24BitImageDecoder(19).decode(visual); // 19/63/250
-        outImage.save("/tmp/fighter_rendered.jpg");
+        outImage.save("/tmp/fighter_rendered.bmp");
     }
 
 
@@ -168,7 +185,7 @@ public class TestRBM {
         final Matrix hidden = contrastiveDivergence.runVisible(rbm, jetMatrix);
         final Matrix visual = contrastiveDivergence.runHidden(rbm, hidden);
         final Image outImage = new Matrix24BitImageDecoder(63).decode(visual); // 19/63/250
-        outImage.save("/tmp/fighter_rendered_small_24bit.jpg");
+        outImage.save("/tmp/fighter_rendered_small_24bit.bmp");
     }
 
     @Test
@@ -184,7 +201,7 @@ public class TestRBM {
         final Matrix hidden = contrastiveDivergence.runVisible(rbm, jetMatrix);
         final Matrix visual = contrastiveDivergence.runHidden(rbm, hidden);
         final Image outImage = new Matrix8BitImageDecoder(63).decode(visual); // 19/63/250
-        outImage.save("/tmp/fighter_rendered_small_8bit.jpg");
+        outImage.save("/tmp/fighter_rendered_small_8bit.bmp");
     }
 
     @Test
@@ -200,7 +217,7 @@ public class TestRBM {
         final Matrix hidden = contrastiveDivergence.runVisible(rbm, jetMatrix);
         final Matrix visual = contrastiveDivergence.runHidden(rbm, hidden);
         final Image outImage = new MatrixGrayscaleImageDecoder(63).decode(visual); // 19/63/250
-        outImage.save("/tmp/fighter_rendered_small_grayscale.jpg");
+        outImage.save("/tmp/fighter_rendered_small_grayscale.bmp");
     }
 
     @Test
@@ -289,7 +306,7 @@ public class TestRBM {
         final Matrix hidden = deepContrastiveDivergence.runVisible(deepRBM, jetMatrix);
         final Matrix visual = deepContrastiveDivergence.runHidden(deepRBM, hidden);
         final Image outImage = new Matrix24BitImageDecoder(63).decode(visual); // 19/63/250
-        outImage.save("/tmp/fighter_rendered_small_24bit_deep.jpg");
+        outImage.save("/tmp/fighter_rendered_small_24bit_deep.bmp");
     }
 
 
@@ -318,40 +335,171 @@ public class TestRBM {
         final Matrix hidden = deepContrastiveDivergence.runVisible(deepRBM, jetMatrix);
         final Matrix visual = deepContrastiveDivergence.runHidden(deepRBM, hidden);
         final Image outImage = new Matrix24BitImageDecoder(250).decode(visual); // 19/63/250
-        outImage.save("/tmp/fighter_rendered_large_24bit_deep.jpg");
-    }
-
-
-    private static Matrix buildBetterSampleTrainingData() {
-        return new ImmutableMatrix(
-                new double[][] {
-                        {1,1,1,0,0,0},
-                        {1,0,1,0,0,0},
-                        {1,1,1,0,0,0},
-                        {0,0,1,1,1,0},
-                        {0,0,1,1,0,0},
-                        {0,0,1,1,1,0}}
-        );
+        outImage.save("/tmp/fighter_rendered_large_24bit_deep.bmp");
     }
 
     @Test
-    public void recurrentNumber() {
+    public void imageSmall24BitDeepRBMTestFeatures() {
+        // 100 * 63 * 24 input (151200)
+        final LayerParameters[] layerParameters = new LayerParameters[] {
+                new LayerParameters().setNumRBMS(200).setVisibleUnitsPerRBM(756).setHiddenUnitsPerRBM(100),    // 151,200 in, 20,000 out
+                new LayerParameters().setNumRBMS(100).setVisibleUnitsPerRBM(200).setHiddenUnitsPerRBM(50),     // 20,000 in, 5,000 out
+                new LayerParameters().setNumRBMS(50).setVisibleUnitsPerRBM(100).setHiddenUnitsPerRBM(10),     // 5,000 in, 500 out
+                new LayerParameters().setNumRBMS(25).setVisibleUnitsPerRBM(20).setHiddenUnitsPerRBM(10),     // 500 in, 250 out
+                new LayerParameters().setNumRBMS(10).setVisibleUnitsPerRBM(25).setHiddenUnitsPerRBM(5),    // 250 in, 50 out
+                new LayerParameters().setNumRBMS(1).setVisibleUnitsPerRBM(50).setHiddenUnitsPerRBM(100),    // 50 in, 100 out
+                new LayerParameters().setNumRBMS(1).setVisibleUnitsPerRBM(100).setHiddenUnitsPerRBM(10),    // 10 in, 10 out
+        };
+
+        DeepRBM deepRBM = new DeepRBM(layerParameters, RBM_FACTORY);
+        final DeepContrastiveDivergence deepContrastiveDivergence = new DeepContrastiveDivergence(new LearningParameters().setEpochs(100));
+
+        final Image jetImage = new Image("/data/fighter_jet_small.jpg");
+        final Matrix jetMatrix = new Matrix24BitImageEncoder().encode(jetImage);
+
+        deepContrastiveDivergence.learn(deepRBM, jetMatrix);
+
+        final List<Matrix> features = new ArrayList<>(10);
+        features.add(new ImmutableMatrix(0,0,0,0,0, 0,0,0,0,0));
+        features.add(new ImmutableMatrix(1,0,0,0,0, 0,0,0,0,0));
+        features.add(new ImmutableMatrix(0,1,0,0,0, 0,0,0,0,0));
+        features.add(new ImmutableMatrix(0,0,1,0,0, 0,0,0,0,0));
+        features.add(new ImmutableMatrix(0,0,0,1,0, 0,0,0,0,0));
+        features.add(new ImmutableMatrix(0,0,0,0,1, 0,0,0,0,0));
+        features.add(new ImmutableMatrix(0,0,0,0,0, 1,0,0,0,0));
+        features.add(new ImmutableMatrix(0,0,0,0,0, 0,1,0,0,0));
+        features.add(new ImmutableMatrix(0,0,0,0,0, 0,0,1,0,0));
+        features.add(new ImmutableMatrix(0,0,0,0,0, 0,0,0,1,0));
+        features.add(new ImmutableMatrix(0,0,0,0,0, 0,0,0,0,1));
+        features.add(new ImmutableMatrix(1,1,1,1,1, 1,1,1,1,1));
+
+        int i = 0;
+        for(Matrix feature : features) {
+            final Matrix visual = deepContrastiveDivergence.runHidden(deepRBM, feature);
+            final Image outImage = new Matrix24BitImageDecoder(63).decode(visual); // 19/63/250
+            outImage.save("/tmp/fighter_rendered_small_24bit_deep_feature_" + i + ".bmp");
+            i++;
+        }
+    }
+
+
+    @Test
+    public void numbersTestFeatures() {
+        final MNISTImageLoader mnistImageLoader = new MNISTImageLoader();
+        final Matrix totalDataSet = mnistImageLoader.loadIdx3("/data/train-images-idx3-ubyte").divide(255.0);
+
+        final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
+
+        final RBM rbm = RBM_FACTORY.build(imageDim, 7);
+        final ContrastiveDivergence contrastiveDivergence = new ContrastiveDivergence(new LearningParameters().setEpochs(15000));
+
+        final Matrix trainingSet = new ImmutableMatrix(new double[][] {
+                totalDataSet.row(0),
+                totalDataSet.row(100),
+                totalDataSet.row(200),
+                totalDataSet.row(300),
+                totalDataSet.row(400),
+                totalDataSet.row(500),
+                totalDataSet.row(600)
+        });
+
+        for(int i = 0; i < trainingSet.rows(); i++) {
+            LOGGER.info("\n" + PrettyPrint.toPixelBox(trainingSet.row(i), 28, 0.5));
+        }
+
+        contrastiveDivergence.learn(rbm, trainingSet);
+
+        // activate single features
+        final List<Matrix> features = new ArrayList<>(7);
+        features.add(new ImmutableMatrix(0,0,0,0,0, 0,0));
+        features.add(new ImmutableMatrix(1,0,0,0,0, 0,0));
+        features.add(new ImmutableMatrix(0,1,0,0,0, 0,0));
+        features.add(new ImmutableMatrix(0,0,1,0,0, 0,0));
+        features.add(new ImmutableMatrix(0,0,0,1,0, 0,0));
+        features.add(new ImmutableMatrix(0,0,0,0,1, 0,0));
+        features.add(new ImmutableMatrix(0,0,0,0,0, 1,0));
+        features.add(new ImmutableMatrix(0,0,0,0,0, 0,1));
+        features.add(new ImmutableMatrix(1,1,1,1,1, 1,1));
+        int i = 0;
+        for(Matrix feature : features) {
+            final Matrix visual = contrastiveDivergence.runHidden(rbm, feature);
+            final Image outImage = new Matrix1BitImageDecoder(28).decode(visual);
+            LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
+            outImage.save("/tmp/numbers_rendered_feature_" + i + ".bmp");
+            i++;
+        }
+
+        // actual rbm reconstructions
+        for(int j = 0; j < trainingSet.rows(); j++) {
+            final Matrix hidden = contrastiveDivergence.runVisible(rbm, new ImmutableMatrix(trainingSet.row(j)));
+            final Matrix visual = contrastiveDivergence.runHidden(rbm, hidden);
+            final Image outImage = new Matrix1BitImageDecoder(28).decode(visual);
+            LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
+            outImage.save("/tmp/numbers_rendered_" + j + ".bmp");
+            i++;
+        }
+    }
+
+    @Test
+         public void recurrentNumber() {
         final MNISTImageLoader mnistImageLoader = new MNISTImageLoader();
         final Matrix totalDataSet = mnistImageLoader.loadIdx3("/data/train-images-idx3-ubyte").divide(255.0);
 
         final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
 
         final RBM rbm = RBM_FACTORY.build(imageDim, 20);
-        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(100));
+        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(1000));
         final Matrix trainingData = new ImmutableMatrix(totalDataSet.row(0));
 
         LOGGER.info("\n" + PrettyPrint.toPixelBox(trainingData.row(0), 28, 0.5));
 
-        recurrentContrastiveDivergence.learn(rbm, trainingData);
+        recurrentContrastiveDivergence.learn(rbm, Arrays.asList(trainingData));
 
         final Matrix hidden = recurrentContrastiveDivergence.runVisible(rbm, trainingData);
         final Matrix visual = recurrentContrastiveDivergence.runHidden(rbm, hidden);
         LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
+    }
+
+
+    @Test
+    public void recurrentNumbers() {
+        final MNISTImageLoader mnistImageLoader = new MNISTImageLoader();
+        final Matrix totalDataSet = mnistImageLoader.loadIdx3("/data/train-images-idx3-ubyte").divide(255.0);
+
+        final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
+
+        final RBM rbm = RBM_FACTORY.build(imageDim, 20);
+        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(1000));
+
+        final List<Matrix> trainingData = new ArrayList<>(3);
+        trainingData.add(new ImmutableMatrix(totalDataSet.row(0)));
+        trainingData.add(new ImmutableMatrix(totalDataSet.row(1)));
+        trainingData.add(new ImmutableMatrix(totalDataSet.row(2)));
+
+        for(Matrix data : trainingData) {
+            LOGGER.info("\n" + PrettyPrint.toPixelBox(data.row(0), 28, 0.5));
+        }
+
+        recurrentContrastiveDivergence.learn(rbm, trainingData);
+
+        // see if network consecutively draws numbers
+
+        Matrix hidden = recurrentContrastiveDivergence.runVisible(rbm, trainingData.get(0));
+        Matrix visual = recurrentContrastiveDivergence.runHidden(rbm, hidden);
+        LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
+
+        for(int i = 0; i < 10; i++) {
+            hidden = recurrentContrastiveDivergence.runVisible(rbm, visual);
+            visual = recurrentContrastiveDivergence.runHidden(rbm, hidden);
+            LOGGER.info("\n" + PrettyPrint.toPixelBox(visual.row(0), 28, 0.5));
+        }
+
+//        LOGGER.info("limit input experiment");
+//        double[] limitedInput = new double[28 * 28 + hidden.cols()];
+//        System.arraycopy(hidden.row(0), 0, limitedInput, 28 * 28, hidden.cols());
+//
+//        final Matrix visualLimited = recurrentContrastiveDivergence.runHidden(rbm, new ImmutableMatrix(limitedInput));
+//        LOGGER.info("\n" + PrettyPrint.toPixelBox(visualLimited.row(0), 28, 0.5));
     }
 
 }

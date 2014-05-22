@@ -137,7 +137,7 @@ public class ContrastiveDivergence {
         for(int i = 0; i < dreamSamples; i++) {
 
             // Calculate the activations of the hidden units.
-            final Matrix visibleValues = new ImmutableMatrix(new double[][]{sample});
+            final Matrix visibleValues = new ImmutableMatrix(sample);
             samples.add(visibleValues);
 
             final Matrix hiddenActivations = visibleValues.dot(weights);

@@ -13,9 +13,9 @@ public class RBM {
 
     private static final Random RANDOM = new Random();
 
-    private final int visibleSize;
+    private int visibleSize;
 
-    private final int hiddenSize;
+    private int hiddenSize;
 
     private Matrix weights;
 
@@ -48,6 +48,8 @@ public class RBM {
             }
         }
         this.weights = weights;
+        this.visibleSize = weights.rows();
+        this.hiddenSize = weights.cols();
     }
 
     public Matrix getWeights() {

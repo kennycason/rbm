@@ -27,6 +27,10 @@ public class DeepRBM {
         }
     }
 
+    public DeepRBM(final RBMLayer[] rbmLayers) {
+        this.rbmLayers = rbmLayers;
+    }
+
     public RBMLayer[] getRbmLayers() {
         return rbmLayers;
     }
