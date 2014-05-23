@@ -22,7 +22,7 @@ public class ContrastiveDivergence {
 
     private static final Random RANDOM = new Random();
 
-    private static final Clock CLOCK = Clock.getInstance();
+    private final Clock clock = new Clock();
 
     private final LearningParameters learningParameters;
 
@@ -37,8 +37,7 @@ public class ContrastiveDivergence {
         final int numberSamples = dataSet.rows();
         final Matrix weights = rbm.getWeights();
 
-        LOGGER.info("Start Learning (" + numberSamples + " samples)");
-        CLOCK.start();
+        clock.start();
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
 
             // Read training data and sample from the hidden later, positive CD phase, (reality phase)
@@ -67,10 +66,10 @@ public class ContrastiveDivergence {
 
             final double error = dataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
 
-            if(epoch % 10 == 0) {
-                LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + CLOCK.elapsedMillis() + "ms");
-                CLOCK.reset();
+            if(learningParameters.isLog() && epoch % 10 == 0 & epoch > 0) {
+                LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + clock.elapsedMillis() + "ms");
             }
+            clock.reset();
         }
     }
 
@@ -158,7 +157,7 @@ public class ContrastiveDivergence {
         return samples;
     }
 
-    private static Matrix buildStatesFromActivationsMatrix(final Matrix activationMatrix, Matrix randomStateMatrix) {
+    private Matrix buildStatesFromActivationsMatrix(final Matrix activationMatrix, Matrix randomStateMatrix) {
         final int rows = activationMatrix.rows();
         final int cols = activationMatrix.cols();
         final double[][] stateMatrix = new double[rows][cols];

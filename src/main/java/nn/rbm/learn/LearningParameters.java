@@ -14,6 +14,8 @@ public class LearningParameters {
 
     private int epochs = 15000;
 
+    private boolean log = true;
+
     public double getLearningRate() {
         return learningRate;
     }
@@ -41,12 +43,24 @@ public class LearningParameters {
         return this;
     }
 
+
+    public boolean isLog() {
+        return log;
+    }
+
+    public LearningParameters setLog(boolean log) {
+        this.log = log;
+        return this;
+    }
+
     @Override
     public String toString() {
-        return "TrainingParameters{" +
+        return "LearningParameters{" +
                 "learningRate=" + learningRate +
                 ", logisticsFunction=" + logisticsFunction +
                 ", epochs=" + epochs +
+                ", log=" + log +
                 '}';
     }
+
 }

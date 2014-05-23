@@ -18,12 +18,15 @@ public class DeepContrastiveDivergence {
 
     private static final Logger LOGGER = Logger.getLogger(DeepContrastiveDivergence.class);
 
-    private static final Clock CLOCK = Clock.getInstance();
+    private final Clock clock = new Clock();
 
     private final ContrastiveDivergence contrastiveDivergence;
 
+    private final LearningParameters learningParameters;
+
     public DeepContrastiveDivergence(final LearningParameters learningParameters) {
         this.contrastiveDivergence = new ContrastiveDivergence(learningParameters);
+        this.learningParameters = learningParameters;
     }
 
     /*
@@ -37,10 +40,8 @@ public class DeepContrastiveDivergence {
         final List<Matrix> trainingData = dataSet.splitColumns(rbmLayers[0].size()); // split dataset across rbms
 
         List<Matrix> samplePieces = trainingData;
-        CLOCK.start();
-
+        clock.reset();
         for(int layer = 0; layer < rbmLayers.length; layer++) {
-            LOGGER.info("Training Layer: " + layer);
 
             final RBMLayer rbmLayer = rbmLayers[layer];
             samplePieces = buildSamplesFromActivatedHiddenLayers(samplePieces, layer, rbmLayers);
@@ -50,6 +51,11 @@ public class DeepContrastiveDivergence {
                 final Matrix splitDataSet = samplePieces.get(r);
                 this.contrastiveDivergence.learn(rbm, splitDataSet);
             }
+
+        }
+
+        if(learningParameters.isLog()) {
+            LOGGER.info("All Layers finished Training in " + clock.elapsedSeconds() + "ms");
         }
     }
 
@@ -120,7 +126,7 @@ public class DeepContrastiveDivergence {
         Pass data into visible layers and activate hidden layers.
         return hidden layers
      */
-    private List<Matrix> buildSamplesFromActivatedHiddenLayers(List<Matrix> sampleData, int layer, RBMLayer[] rbmLayers) {
+    private List<Matrix> buildSamplesFromActivatedHiddenLayers(final List<Matrix> sampleData, final int layer, RBMLayer[] rbmLayers) {
         final RBMLayer rbmLayer = rbmLayers[layer];
 
         if(layer == 0) {
@@ -138,7 +144,7 @@ public class DeepContrastiveDivergence {
         }
     }
 
-    private List<Matrix> buildSampleData(List<Matrix> trainingData, int layer, RBMLayer[] rbmLayers) {
+    private List<Matrix> buildSampleData(final List<Matrix> trainingData, final int layer, final RBMLayer[] rbmLayers) {
         final RBMLayer rbmLayer = rbmLayers[layer];
 
         if(layer == 0) {
@@ -156,7 +162,7 @@ public class DeepContrastiveDivergence {
         }
     }
 
-    private List<Matrix> buildSampleDataReverse(List<Matrix> trainingData, int layer, RBMLayer[] rbmLayers) {
+    private List<Matrix> buildSampleDataReverse(final List<Matrix> trainingData, final int layer, final RBMLayer[] rbmLayers) {
         final RBMLayer rbmLayer = rbmLayers[layer];
 
         if(layer == rbmLayers.length - 1) {
