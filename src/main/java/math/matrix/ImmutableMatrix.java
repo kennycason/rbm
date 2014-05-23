@@ -1,6 +1,7 @@
 package math.matrix;
 
 import com.google.common.base.Function;
+import math.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,10 @@ public class ImmutableMatrix extends Matrix {
 
     public ImmutableMatrix(final Matrix m) {
         super(m);
+    }
+
+    public ImmutableMatrix(final Vector vector) {
+        super(vector);
     }
 
     @Override

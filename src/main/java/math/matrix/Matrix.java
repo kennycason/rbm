@@ -1,6 +1,7 @@
 package math.matrix;
 
 import com.google.common.base.Function;
+import math.Vector;
 import utils.PrettyPrint;
 
 import java.util.ArrayList;
@@ -29,16 +30,20 @@ public abstract class Matrix {
         this.m = new double[rows][cols];
     }
 
-    protected Matrix(final double[][] m) {
-        update(m);
-    }
-
     protected Matrix(final double[] m) {
-        update(new double[][] { m });
+        this(new double[][] { m });
     }
 
     protected Matrix(Matrix m) {
-        update(m.data());
+        this(m.data());
+    }
+
+    public Matrix(Vector vector) {
+        this(vector.data());
+    }
+
+    protected Matrix(final double[][] m) {
+        update(m);
     }
 
     protected void update(final double[][] m) {

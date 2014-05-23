@@ -36,8 +36,8 @@ public class BackErrorPropagation {
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
             error = 0;
             for(int i = 0; i < trainData.size(); i++) {
-                final Matrix input = trainData.get(i);
-                final Matrix teacherSignal = teacherSignals.get(i);
+                final Matrix input = new ImmutableMatrix(trainData.get(i));
+                final Matrix teacherSignal = new ImmutableMatrix(teacherSignals.get(i));
 
                 Matrix output = feedFoward(rbm, input);
                 error += calculateAvgSquaredError(output, teacherSignal);
