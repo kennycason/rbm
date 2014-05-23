@@ -79,7 +79,7 @@ public class ImmutableMatrix extends Matrix {
         for(int i = 0; i < m1.rows; i++) {
             for(int j = 0; j < m2.cols; j++) {
                 for(int k = 0; k < m1.cols; k++) {
-                    product[i][j] += m1.get(i, k) * m2.get(k,j);
+                    product[i][j] += m1.get(i, k) * m2.m[i][j];
                 }
             }
         }
@@ -91,7 +91,7 @@ public class ImmutableMatrix extends Matrix {
         final double[][] copy = new double[rows][cols];
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                copy[i][j] = m[i][j] + m2.get(i,j);
+                copy[i][j] = m[i][j] + m2.m[i][j];
             }
         }
         return new ImmutableMatrix(copy);
@@ -102,7 +102,18 @@ public class ImmutableMatrix extends Matrix {
         final double[][] copy = new double[rows][cols];
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                copy[i][j] = m[i][j] - m2.get(i,j);
+                copy[i][j] = m[i][j] - m2.m[i][j];
+            }
+        }
+        return new ImmutableMatrix(copy);
+    }
+
+    @Override
+    public Matrix multiply(Matrix m2) {
+        final double[][] copy = new double[rows][cols];
+        for(int i = 0; i < rows; i++) {
+            for(int j = 0; j < cols; j++) {
+                copy[i][j] = m[i][j] * m2.m[i][j];
             }
         }
         return new ImmutableMatrix(copy);
@@ -162,7 +173,7 @@ public class ImmutableMatrix extends Matrix {
         final double[][] t = new double[m.cols][m.rows];
         for(int i = 0; i < m.rows; i++) {
             for(int j = 0; j < m.cols; j++) {
-                t[j][i] = m.get(i, j);
+                t[j][i] = m.m[i][j];
             }
         }
         return new ImmutableMatrix(t);

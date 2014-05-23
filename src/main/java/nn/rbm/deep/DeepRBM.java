@@ -15,7 +15,6 @@ public class DeepRBM {
     public DeepRBM(final LayerParameters[] layerParameters, final RBMFactory rbmFactory) {
         rbmLayers = new RBMLayer[layerParameters.length];
 
-
         for(int layer = 0; layer < layerParameters.length; layer++) {
             final LayerParameters layerParameter = layerParameters[layer];
             final RBM[] rbms = new RBM[layerParameter.getNumRBMS()];

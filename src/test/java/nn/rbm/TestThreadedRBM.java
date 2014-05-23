@@ -38,7 +38,7 @@ public class TestThreadedRBM {
         final DeepRBM deepRBM = new DeepRBM(layerParameters, RBM_FACTORY);
         final LearningParameters learningParameters = new LearningParameters().setEpochs(10).setLog(false);
         final DeepContrastiveDivergence deepContrastiveDivergence = new DeepContrastiveDivergence(learningParameters);
-        final MultiThreadedDeepContrastiveDivergence multiThreadedDeepContrastiveDivergence = new MultiThreadedDeepContrastiveDivergence(learningParameters);
+        final MultiThreadedDeepContrastiveDivergence multiThreadedDeepContrastiveDivergence = new MultiThreadedDeepContrastiveDivergence(learningParameters, 4);
 
         final Image jetImage = new Image("/data/fighter_jet_small.jpg");
         final Matrix jetMatrix = new Matrix24BitImageEncoder().encode(jetImage);

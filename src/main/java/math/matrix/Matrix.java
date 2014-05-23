@@ -77,6 +77,8 @@ public abstract class Matrix {
 
     public abstract Matrix subtract(final Matrix m2);
 
+    public abstract Matrix multiply(final Matrix m2);
+
     public abstract Matrix multiply(final double s);
 
     public abstract Matrix divide(final double s);

@@ -72,7 +72,7 @@ public class MutableMatrix extends Matrix {
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < m2.cols; j++) {
                 for(int k = 0; k < cols; k++) {
-                    product[i][j] += m[i][k] * m2.get(k,j);
+                    product[i][j] += m[i][k] * m2.m[i][j];
                 }
             }
         }
@@ -84,7 +84,7 @@ public class MutableMatrix extends Matrix {
     public Matrix add(final Matrix m2) {
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                m[i][j] += m2.get(i,j);
+                m[i][j] += m2.m[i][j];
             }
         }
         return this;
@@ -94,7 +94,17 @@ public class MutableMatrix extends Matrix {
     public Matrix subtract(final Matrix m2) {
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                m[i][j] -= m2.get(i,j);
+                m[i][j] -= m2.m[i][j];
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public Matrix multiply(Matrix m2) {
+        for(int i = 0; i < rows; i++) {
+            for(int j = 0; j < cols; j++) {
+                m[i][j] *= m2.m[i][j];
             }
         }
         return this;
