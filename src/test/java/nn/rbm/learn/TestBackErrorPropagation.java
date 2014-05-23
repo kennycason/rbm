@@ -1,5 +1,7 @@
 package nn.rbm.learn;
 
+import com.google.common.base.Function;
+import math.functions.Round;
 import math.matrix.ImmutableMatrix;
 import math.matrix.Matrix;
 import nn.rbm.RBM;
@@ -17,33 +19,45 @@ public class TestBackErrorPropagation {
 
     private static final Logger LOGGER = Logger.getLogger(TestBackErrorPropagation.class);
 
+    private static final Function<Double, Double> ROUND = new Round();
+
+    /**
+     * given the structure of an rbm, this will not learn the same way a layered bep nn will,
+     * but should still at least be able to propagate errors back
+     */
     @Test
     public void backErrorPropagation() {
+
+        // even/odd number of 1s
         final List<Matrix> trainData = new ArrayList<>();
-//        trainData.add(new MutableMatrix(new double[] {0, 1}));
-//        trainData.add(new ImmutableMatrix(new double[] {0, 1}));
-//        trainData.add(new ImmutableMatrix(new double[] {1, 0}));
-//        trainData.add(new ImmutableMatrix(new double[] {1, 1}));
-        trainData.add(new ImmutableMatrix(new double[] {1, 0}));
- //       trainData.add(new ImmutableMatrix(new double[] {0, 1}));
+        trainData.add(new ImmutableMatrix(new double[] {0,0,1}));
+        trainData.add(new ImmutableMatrix(new double[] {0,1,0}));
+       // trainData.add(new ImmutableMatrix(new double[] {0,1,1}));
+      //  trainData.add(new ImmutableMatrix(new double[] {1,0,0}));
+        trainData.add(new ImmutableMatrix(new double[] {1,0,1}));
+        trainData.add(new ImmutableMatrix(new double[] {1,1,0}));
+        trainData.add(new ImmutableMatrix(new double[] {1,1,1}));
 
         final List<Matrix> teacherSignals = new ArrayList<>();
-//        teacherSignals.add(new MutableMatrix(new double[] {0}));
-//        teacherSignals.add(new ImmutableMatrix(new double[] {0}));
-//        teacherSignals.add(new ImmutableMatrix(new double[] {0}));
-//        teacherSignals.add(new ImmutableMatrix(new double[] {1}));
-        teacherSignals.add(new ImmutableMatrix(new double[] {0}));
-  //      teacherSignals.add(new ImmutableMatrix(new double[] {1}));
+        teacherSignals.add(new ImmutableMatrix(new double[] {1,0}));
+        teacherSignals.add(new ImmutableMatrix(new double[] {1,0}));
+      //  teacherSignals.add(new ImmutableMatrix(new double[] {0,1}));
+      //  teacherSignals.add(new ImmutableMatrix(new double[] {1,0}));
+        teacherSignals.add(new ImmutableMatrix(new double[] {0,1}));
+        teacherSignals.add(new ImmutableMatrix(new double[] {0,1}));
+        teacherSignals.add(new ImmutableMatrix(new double[] {1,0}));
 
-        final RBM rbm = new RandomRBMFactory().build(2, 1);
+        final RBM rbm = new RandomRBMFactory().build(3, 2);
 
-        final LearningParameters learningParameters = new LearningParameters().setEpochs(500).setLearningRate(0.5);
+        final LearningParameters learningParameters = new LearningParameters().setEpochs(10000).setLearningRate(0.1);
         final BackErrorPropagation backErrorPropagation = new BackErrorPropagation(learningParameters);
 
+        LOGGER.info(rbm.getWeights());
         backErrorPropagation.learn(rbm, trainData, teacherSignals);
-        for(Matrix data : trainData) {
-            final Matrix output = backErrorPropagation.feedFoward(rbm, data);
-            LOGGER.info(output);
+        LOGGER.info(rbm.getWeights());
+        for(Matrix input : trainData) {
+            final Matrix output = backErrorPropagation.feedFoward(rbm, input);
+            LOGGER.info(input + " -> " + output.apply(ROUND));
         }
 
     }

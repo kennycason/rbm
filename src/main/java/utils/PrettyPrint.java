@@ -11,10 +11,12 @@ public class PrettyPrint {
 
     public static String toString(Object[] array) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("[\n");
-        for(Object a : array) {
-            stringBuilder.append(a);
-            stringBuilder.append('\n');
+        stringBuilder.append("[");
+        for(int i = 0; i < array.length; i++) {
+            stringBuilder.append(array[i]);
+            if(i < array.length - 1) {
+                stringBuilder.append('\n');
+            }
         }
         stringBuilder.append("]");
         return stringBuilder.toString();
@@ -22,10 +24,12 @@ public class PrettyPrint {
 
     public static String toString(double[][] arrays) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("[\n");
-        for(double[] array : arrays) {
-            stringBuilder.append(Arrays.toString(array));
-            stringBuilder.append('\n');
+        stringBuilder.append("[");
+        for(int i = 0; i < arrays.length; i++) {
+            stringBuilder.append(Arrays.toString(arrays[i]));
+            if(i < arrays.length - 1) {
+                stringBuilder.append('\n');
+            }
         }
         stringBuilder.append("]");
         return stringBuilder.toString();
