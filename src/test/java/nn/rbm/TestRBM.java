@@ -17,6 +17,7 @@ import nn.rbm.factory.RandomRBMFactory;
 import nn.rbm.learn.ContrastiveDivergence;
 import nn.rbm.learn.DeepContrastiveDivergence;
 import nn.rbm.learn.LearningParameters;
+import nn.rbm.learn.MultiThreadedDeepContrastiveDivergence;
 import nn.rbm.learn.RecurrentContrastiveDivergence;
 import org.apache.log4j.Logger;
 import org.junit.Ignore;
@@ -297,10 +298,12 @@ public class TestRBM {
 
         DeepRBM deepRBM = new DeepRBM(layerParameters, RBM_FACTORY);
         final DeepContrastiveDivergence deepContrastiveDivergence = new DeepContrastiveDivergence(new LearningParameters().setEpochs(100));
+        final MultiThreadedDeepContrastiveDivergence deepContrastiveDivergence2 = new MultiThreadedDeepContrastiveDivergence(new LearningParameters().setEpochs(100));
 
         final Image jetImage = new Image("/data/fighter_jet_small.jpg");
         final Matrix jetMatrix = new Matrix24BitImageEncoder().encode(jetImage);
 
+        deepContrastiveDivergence2.learn(deepRBM, jetMatrix);
         deepContrastiveDivergence.learn(deepRBM, jetMatrix);
 
         final Matrix hidden = deepContrastiveDivergence.runVisible(deepRBM, jetMatrix);
@@ -308,7 +311,6 @@ public class TestRBM {
         final Image outImage = new Matrix24BitImageDecoder(63).decode(visual); // 19/63/250
         outImage.save("/tmp/fighter_rendered_small_24bit_deep.bmp");
     }
-
 
     @Test
     public void imageLarge24BitDeepRBM() {

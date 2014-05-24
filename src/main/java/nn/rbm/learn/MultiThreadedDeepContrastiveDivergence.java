@@ -128,7 +128,11 @@ public class MultiThreadedDeepContrastiveDivergence {
 
         @Override
         public void run() {
-            this.contrastiveDivergence.learn(rbm, dataSet);
+            try {
+                this.contrastiveDivergence.learn(rbm, dataSet);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }

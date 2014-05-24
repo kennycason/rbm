@@ -31,6 +31,10 @@ public class MutableMatrix extends Matrix {
         super(vector);
     }
 
+    public MutableMatrix(final List<Vector> vs) {
+        super(vs);
+    }
+
     @Override
     public double[][] data() {
         return m;
@@ -71,17 +75,7 @@ public class MutableMatrix extends Matrix {
 
     @Override
     public Matrix dot(final Matrix m2) {
-        if(cols != m2.rows) { throw new IllegalArgumentException("Matrix m1 cols must equal m2 rows"); }
-
-        final double[][] product = new double[rows][m2.cols];
-        for(int i = 0; i < rows; i++) {
-            for(int j = 0; j < m2.cols; j++) {
-                for(int k = 0; k < cols; k++) {
-                    product[i][j] += m[i][k] * m2.m[i][j];
-                }
-            }
-        }
-        copy(product, m);
+        copy(dot(this, m2), m);
         return this;
     }
 

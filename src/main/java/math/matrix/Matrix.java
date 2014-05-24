@@ -34,8 +34,12 @@ public abstract class Matrix {
         this(new double[][] { m });
     }
 
-    protected Matrix(Matrix m) {
+    protected Matrix(final Matrix m) {
         this(m.data());
+    }
+
+    protected Matrix(final List<Vector> vs) {
+        this(convertVectorsToArray(vs));
     }
 
     public Matrix(Vector vector) {
@@ -191,6 +195,30 @@ public abstract class Matrix {
             pieces.add(piece);
         }
         return pieces;
+    }
+
+    public static double[][] convertVectorsToArray(final List<Vector> vs) {
+        final double[][] data = new double[vs.size()][];
+        int i = 0;
+        for(Vector v : vs) {
+            data[i] = v.data();
+            i++;
+        }
+        return data;
+    }
+
+    public static double[][] dot(final Matrix m1, final Matrix m2) {
+        if(m1.cols != m2.rows) { throw new IllegalArgumentException("Matrix m1 cols must equal m2 rows"); }
+
+        final double[][] product = new double[m1.rows][m2.cols];
+        for(int i = 0; i < m1.rows; i++) {
+            for(int j = 0; j < m2.cols; j++) {
+                for(int k = 0; k < m1.cols; k++) {
+                    product[i][j] += m1.get(i, k) * m2.m[k][j];
+                }
+            }
+        }
+        return product;
     }
 
     public static int rows(final double[][] m) {

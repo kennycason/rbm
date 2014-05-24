@@ -32,6 +32,10 @@ public class ImmutableMatrix extends Matrix {
         super(vector);
     }
 
+    public ImmutableMatrix(final List<Vector> vs) {
+        super(vs);
+    }
+
     @Override
     public double[][] data() {
         return copy(m);
@@ -74,21 +78,7 @@ public class ImmutableMatrix extends Matrix {
 
     @Override
     public Matrix dot(final Matrix m2) {
-        return dot(this, m2);
-    }
-
-    public static Matrix dot(final Matrix m1, final Matrix m2) {
-        if(m1.cols != m2.rows) { throw new IllegalArgumentException("Matrix m1 cols must equal m2 rows"); }
-
-        final double[][] product = new double[m1.rows][m2.cols];
-        for(int i = 0; i < m1.rows; i++) {
-            for(int j = 0; j < m2.cols; j++) {
-                for(int k = 0; k < m1.cols; k++) {
-                    product[i][j] += m1.get(i, k) * m2.m[i][j];
-                }
-            }
-        }
-        return new ImmutableMatrix(product);
+        return new ImmutableMatrix(dot(this, m2));
     }
 
     @Override
