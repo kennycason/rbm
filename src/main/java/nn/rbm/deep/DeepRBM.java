@@ -16,6 +16,8 @@ public class DeepRBM {
     private final int hiddenSize;
 
     public DeepRBM(final LayerParameters[] layerParameters, final RBMFactory rbmFactory) {
+        checkLayerParameters(layerParameters);
+
         rbmLayers = new RBMLayer[layerParameters.length];
 
         this.visibleSize = layerParameters[0].getVisibleUnitsPerRBM() * layerParameters[0].getNumRBMS();
@@ -30,6 +32,23 @@ public class DeepRBM {
             }
             rbmLayers[layer] = new RBMLayer(rbms);
         }
+    }
+
+    public static void checkLayerParameters(final LayerParameters[] layerParameters) {
+
+        //int visibleNodesIn = layerParameters[0].getNumRBMS() * layerParameters[0].getVisibleUnitsPerRBM();
+        int hiddenNodesOut = layerParameters[0].getNumRBMS() * layerParameters[0].getHiddenUnitsPerRBM();
+        for(int layer = 1; layer < layerParameters.length; layer++) {
+            int currentLayerVisibleNodesIn = layerParameters[layer].getNumRBMS() * layerParameters[layer].getVisibleUnitsPerRBM();
+            int currentLayerHiddenNodesIn = layerParameters[layer].getNumRBMS() * layerParameters[layer].getHiddenUnitsPerRBM();
+            if(hiddenNodesOut != currentLayerVisibleNodesIn) {
+                throw new IllegalArgumentException("Layer: " + layer + ", previous layer hidden nodes out (" + hiddenNodesOut + ") does not match current layer visible layers in (" + currentLayerVisibleNodesIn + ").");
+            }
+
+            //visibleNodesIn = currentLayerVisibleNodesIn;
+            hiddenNodesOut = currentLayerHiddenNodesIn;
+        }
+
     }
 
     public DeepRBM(final RBMLayer[] rbmLayers) {

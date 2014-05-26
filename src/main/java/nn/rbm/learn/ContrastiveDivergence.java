@@ -10,6 +10,8 @@ import nn.rbm.RBM;
 import org.apache.log4j.Logger;
 import utils.Clock;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,40 +37,53 @@ public class ContrastiveDivergence {
         this.logisticsFunction = new Sigmoid();
     }
 
+    /**
+     * Learn a matrix of data. Each row represents a single training set.
+     * For example t = [[1,0],[0,1]] will train the rbm to recognize [1,0] and [0,1]
+     * If a Matrix is too large I recommend splitting it into smaller matrices, but if they are reasonably small, this
+     * is a fast way to "simultaneously" train multiple inputs and should generable be used unless the matrices are just
+     * too large
+     * @param rbm
+     * @param dataSet
+     */
     public void learn(final RBM rbm, final Matrix dataSet) {
-        final int numberSamples = dataSet.rows();
+        learn(rbm, Arrays.asList(dataSet));
+    }
+
+    public void learn(final RBM rbm, final Collection<Matrix> dataSets) {
         final Matrix weights = rbm.getWeights();
 
         clock.start();
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
 
-            // Read training data and sample from the hidden later, positive CD phase, (reality phase)
-            final Matrix positiveHiddenActivations = dataSet.dot(weights);
+            double error = 0;
+            for(Matrix dataSet : dataSets) {
+                final int numberSamples = dataSet.rows();
 
-            final Matrix positiveHiddenProbabilities = positiveHiddenActivations.copy().apply(logisticsFunction);
+                // Read training data and sample from the hidden later, positive CD phase, (reality phase)
+                final Matrix positiveHiddenActivations = dataSet.dot(weights);
+                final Matrix positiveHiddenProbabilities = positiveHiddenActivations.copy().apply(logisticsFunction);
+                final Matrix positiveHiddenStates = positiveHiddenProbabilities.apply(DenseMatrix.random(numberSamples, rbm.getHiddenSize()), ACTIVATION_STATE);
 
-            final Matrix positiveHiddenStates = positiveHiddenProbabilities.apply(DenseMatrix.random(numberSamples, rbm.getHiddenSize()), ACTIVATION_STATE);
+                // Note that we're using the activation *probabilities* of the hidden states, not the hidden states themselves, when computing associations.
+                // We could also use the states; see section 3 of Hinton's A Practical Guide to Training Restricted Boltzmann Machines" for more.
+                final Matrix positiveAssociations = dataSet.transpose().dot(positiveHiddenProbabilities);
 
-            // Note that we're using the activation *probabilities* of the hidden states, not the hidden states themselves, when computing associations.
-            // We could also use the states; see section 3 of Hinton's A Practical Guide to Training Restricted Boltzmann Machines" for more.
+                // Reconstruct the visible units and sample again from the hidden units. negative CD phase, aka the daydreaming phase.
+                final Matrix negativeVisibleActivations = positiveHiddenStates.dot(weights.transpose());
+                final Matrix negativeVisibleProbabilities = negativeVisibleActivations.apply(logisticsFunction);
+                final Matrix negativeHiddenActivations = negativeVisibleProbabilities.dot(weights);
+                final Matrix negativeHiddenProbabilities = negativeHiddenActivations.apply(logisticsFunction);
 
-            final Matrix positiveAssociations = dataSet.transpose().dot(positiveHiddenProbabilities);
+                // Note, again, that we're using the activation *probabilities* when computing associations, not the states themselves.
+                final Matrix negativeAssociations = negativeVisibleProbabilities.transpose().dot(negativeHiddenProbabilities);
 
-            // Reconstruct the visible units and sample again from the hidden units. negative CD phase, aka the daydreaming phase.
-            final Matrix negativeVisibleActivations = positiveHiddenStates.dot(weights.transpose());
-            final Matrix negativeVisibleProbabilities = negativeVisibleActivations.apply(logisticsFunction);
+                // Update weights.
+                final Matrix updates = positiveAssociations.subtract(negativeAssociations).divide(numberSamples).multiply(learningParameters.getLearningRate());
+                weights.add(updates);
 
-            final Matrix negativeHiddenActivations = negativeVisibleProbabilities.dot(weights);
-            final Matrix negativeHiddenProbabilities = negativeHiddenActivations.apply(logisticsFunction);
-
-            // Note, again, that we're using the activation *probabilities* when computing associations, not the states themselves.
-            final Matrix negativeAssociations = negativeVisibleProbabilities.transpose().dot(negativeHiddenProbabilities);
-
-            // Update weights.
-            final Matrix updates = positiveAssociations.subtract(negativeAssociations).divide(numberSamples).multiply(learningParameters.getLearningRate());
-            weights.add(updates);
-
-            final double error = dataSet.copy().subtract(negativeVisibleProbabilities).pow(2).sum();
+                error += dataSet.copy().subtract(negativeVisibleProbabilities).pow(2).sum();
+            }
 
             if(learningParameters.isLog() && epoch % 10 == 0 & epoch > 0) {
                 LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + clock.elapsedMillis() + "ms");

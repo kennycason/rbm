@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Currently this class is half mutable/immutable. The operations that are immutable are defined. This class serves
+ * to wrap the Parallel Colt library.
+ * If you need an operation to be immutable just call .copy().
+ * I am considering making a ImmutableDense,ImmutableSparse,MutableDense,MutableSparse class in the future if needed.
  * Created by kenny on 5/24/14.
  */
 public abstract class Matrix {
@@ -161,6 +165,22 @@ public abstract class Matrix {
         return appended;
     }
 
+    public static double[][] concatRows(final Matrix... m) {
+        int totalRows = 0;
+        for(int i = 0; i < m.length; i++) {
+            totalRows += m[i].rows();
+        }
+        final int columns = m[0].columns();
+        final double[][] appended = new double[totalRows][columns];
+        int row = 0;
+        for(int k = 0; k < m.length; k++) {
+            for(int i = 0; i < m[k].rows(); i++) {
+                System.arraycopy(m[k].row(i).toArray(), 0, appended[row], 0, columns);
+            }
+            row++;
+        }
+        return appended;
+    }
 
     public static int rows(final double[][] m) {
         return m.length;

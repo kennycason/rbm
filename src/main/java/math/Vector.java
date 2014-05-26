@@ -3,7 +3,6 @@ package math;
 /**
  * Created by kenny on 5/13/14.
  */
-@Deprecated
 public class Vector {
 
     private final double[] values;

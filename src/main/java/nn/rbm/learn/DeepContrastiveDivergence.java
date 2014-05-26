@@ -20,7 +20,7 @@ public class DeepContrastiveDivergence {
 
     private static final Logger LOGGER = Logger.getLogger(DeepContrastiveDivergence.class);
 
-    private static final DoubleDoubleFunction ACTIVATION_STATE_FUNCTION = new ActivationState();
+    private static final DoubleDoubleFunction ACTIVATION__FUNCTION = new ActivationState();
 
     private final Clock clock = new Clock();
 
