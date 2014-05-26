@@ -1,4 +1,4 @@
-package math.matrix;
+package math.old.matrix;
 
 import com.google.common.base.Function;
 import math.Vector;
@@ -6,170 +6,184 @@ import math.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by kenny on 5/13/14.
- */
-public class MutableMatrix extends Matrix {
 
-    public MutableMatrix(final int rows, final int cols) {
+/**
+ * Created by kenny on 5/14/14.
+ */
+@Deprecated
+public class ImmutableMatrix extends Matrix {
+
+    public ImmutableMatrix(final int rows, final int cols) {
         super(rows, cols);
     }
 
-    public MutableMatrix(final double[][] m) {
+    public ImmutableMatrix(final double[][] m) {
         super(m);
     }
 
-    public MutableMatrix(final double[] m) {
+    public ImmutableMatrix(final double... m) {
         super(m);
     }
 
-    public MutableMatrix(final Matrix m) {
+    public ImmutableMatrix(final Matrix m) {
         super(m);
     }
 
-    public MutableMatrix(final Vector vector) {
+    public ImmutableMatrix(final Vector vector) {
         super(vector);
     }
 
-    public MutableMatrix(final List<Vector> vs) {
+    public ImmutableMatrix(final List<Vector> vs) {
         super(vs);
     }
 
     @Override
     public double[][] data() {
-        return m;
+        return copy(m);
     }
 
     @Override
     public Matrix set(final int i, final int j, final double value) {
-        this.m[i][j] = value;
-        return this;
+        final double[][] copy = copy(this.m);
+        copy[i][j] = j;
+        return new ImmutableMatrix(copy);
     }
 
     @Override
     public double[] row(int row) {
-        return this.m[row];
+        final double[] drow = new double[this.cols];
+        System.arraycopy(this.m[row], 0, drow, 0, this.cols);
+        return drow;
     }
 
     @Override
     public Matrix appendRows(final Matrix m2) {
-        update(appendRows(this.m, m2.m));
-        return this;
+        return new ImmutableMatrix(appendRows(this.m, m2.m));
     }
 
     @Override
     public Matrix appendColumns(Matrix m2) {
-        update(appendColumns(this.m, m2.data()));
-        return this;
+        final double[][] m2Data = m2.data();
+        return new ImmutableMatrix(appendColumns(this.m, m2Data));
     }
 
     @Override
     public List<Matrix> splitColumns(int pieces) {
-        final List<double[][]> split = splitColumns(this.m, pieces);
+        final List<double[][]> split = super.splitColumns(this.m, pieces);
         final List<Matrix> matrices = new ArrayList<>(split.size());
         for(double[][] piece : split) {
-            matrices.add(new MutableMatrix(piece));
+            matrices.add(new ImmutableMatrix(piece));
         }
         return matrices;
     }
 
     @Override
     public Matrix dot(final Matrix m2) {
-        copy(dot(this, m2), m);
-        return this;
+        return new ImmutableMatrix(dot(this, m2));
     }
 
     @Override
     public Matrix add(final Matrix m2) {
+        final double[][] copy = new double[rows][cols];
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                m[i][j] += m2.m[i][j];
+                copy[i][j] = m[i][j] + m2.m[i][j];
             }
         }
-        return this;
+        return new ImmutableMatrix(copy);
     }
 
     @Override
     public Matrix subtract(final Matrix m2) {
+        final double[][] copy = new double[rows][cols];
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                m[i][j] -= m2.m[i][j];
+                copy[i][j] = m[i][j] - m2.m[i][j];
             }
         }
-        return this;
+        return new ImmutableMatrix(copy);
     }
 
     @Override
     public Matrix multiply(Matrix m2) {
+        final double[][] copy = new double[rows][cols];
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                m[i][j] *= m2.m[i][j];
+                copy[i][j] = m[i][j] * m2.m[i][j];
             }
         }
-        return this;
+        return new ImmutableMatrix(copy);
     }
 
     @Override
     public Matrix multiply(final double s) {
+        final double[][] copy = new double[rows][cols];
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                m[i][j] *= s;
+                copy[i][j] = m[i][j] * s;
             }
         }
-        return this;
+        return new ImmutableMatrix(copy);
     }
 
     @Override
     public Matrix divide(final double s) {
         if(s == 0.0) { throw new IllegalArgumentException("Can not divide by zero!"); }
+        final double[][] copy = new double[rows][cols];
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                m[i][j] /= s;
+                copy[i][j] = m[i][j] / s;
             }
         }
-        return this;
+        return new ImmutableMatrix(copy);
     }
 
     @Override
     public Matrix pow(final double p) {
+        final double[][] copy = new double[rows][cols];
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                m[i][j] = Math.pow(m[i][j], p);
+                copy[i][j] = Math.pow(m[i][j], p);
             }
         }
-        return this;
+        return new ImmutableMatrix(copy);
     }
 
     @Override
     public Matrix apply(final Function<Double, Double> f) {
+        final double[][] copy = new double[rows][cols];
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                m[i][j] = f.apply(m[i][j]);
+                copy[i][j] = f.apply(m[i][j]);
             }
         }
-        return this;
+        return new ImmutableMatrix(copy);
     }
 
     @Override
     public Matrix transpose() {
-        final double[][] t = new double[cols][rows];
-        for(int i = 0; i < rows; i++) {
-            for(int j = 0; j < cols; j++) {
-                t[j][i] = m[i][j];
+        return transpose(this);
+    }
+
+    public static Matrix transpose(Matrix m) {
+        final double[][] t = new double[m.cols][m.rows];
+        for(int i = 0; i < m.rows; i++) {
+            for(int j = 0; j < m.cols; j++) {
+                t[j][i] = m.m[i][j];
             }
         }
-        copy(t, m);
-        return this;
+        return new ImmutableMatrix(t);
     }
 
     @Override
     public Matrix fill(double value) {
+        final double[][] copy = new double[rows][cols];
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < cols; j++) {
-                m[i][j] = value;
+                copy[i][j] = value;
             }
         }
-        return this;
+        return new ImmutableMatrix(copy);
     }
 
     /*
@@ -186,7 +200,7 @@ public class MutableMatrix extends Matrix {
                 m[i][j] = RANDOM.nextDouble() * scalar;
             }
         }
-        return new MutableMatrix(m);
+        return new ImmutableMatrix(m);
     }
 
     public static Matrix randomNormal(int r, int c) {
@@ -200,7 +214,7 @@ public class MutableMatrix extends Matrix {
                 m[i][j] = RANDOM.nextGaussian() * scalar;
             }
         }
-        return new MutableMatrix(m);
+        return new ImmutableMatrix(m);
     }
 
 }

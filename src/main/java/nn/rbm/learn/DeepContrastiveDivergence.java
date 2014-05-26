@@ -1,7 +1,9 @@
 package nn.rbm.learn;
 
-import math.matrix.ImmutableMatrix;
-import math.matrix.Matrix;
+import cern.colt.function.tdouble.DoubleDoubleFunction;
+import math.DenseMatrix;
+import math.Matrix;
+import math.functions.doubledouble.rbm.ActivationState;
 import nn.rbm.RBM;
 import nn.rbm.deep.DeepRBM;
 import nn.rbm.deep.RBMLayer;
@@ -17,6 +19,8 @@ import java.util.List;
 public class DeepContrastiveDivergence {
 
     private static final Logger LOGGER = Logger.getLogger(DeepContrastiveDivergence.class);
+
+    private static final DoubleDoubleFunction ACTIVATION_STATE_FUNCTION = new ActivationState();
 
     private final Clock clock = new Clock();
 
@@ -71,11 +75,11 @@ public class DeepContrastiveDivergence {
         final List<Matrix> trainingData = dataSet.splitColumns(rbmLayers[0].size()); // split dataset across rbms
 
         List<Matrix> samplePieces = trainingData;
-        double[][][] hiddenStatesArray = new double[0][0][0];
+        Matrix[] hiddenStatesArray = new Matrix[0];
 
         for(int layer = 0; layer < rbmLayers.length; layer++) {
             final RBMLayer rbmLayer = rbmLayers[layer];
-            hiddenStatesArray = new double[rbmLayer.size()][][];
+            hiddenStatesArray = new Matrix[rbmLayer.size()];
 
             samplePieces = buildSampleData(samplePieces, layer, rbmLayers);
 
@@ -83,11 +87,11 @@ public class DeepContrastiveDivergence {
                 final RBM rbm = rbmLayer.getRBM(r);
                 final Matrix splitDataSet = samplePieces.get(r);
                 final Matrix hiddenStates = this.contrastiveDivergence.runVisible(rbm, splitDataSet);
-                hiddenStatesArray[r] = hiddenStates.data();
+                hiddenStatesArray[r] = hiddenStates;
             }
         }
 
-        return new ImmutableMatrix(Matrix.appendColumns(hiddenStatesArray));
+        return DenseMatrix.make(Matrix.concatColumns(hiddenStatesArray));
 
     }
 
@@ -103,11 +107,11 @@ public class DeepContrastiveDivergence {
         final List<Matrix> trainingData = dataSet.splitColumns(rbmLayers[rbmLayers.length - 1].size()); // split dataset across rbms
 
         List<Matrix> samplePieces = trainingData;
-        double[][][] visibleStatesArray = new double[0][0][0];
+        Matrix[] visibleStatesArray = new Matrix[0];
 
         for(int layer = rbmLayers.length - 1; layer >= 0; layer--) {
             final RBMLayer rbmLayer = rbmLayers[layer];
-            visibleStatesArray = new double[rbmLayer.size()][][];
+            visibleStatesArray = new Matrix[rbmLayer.size()];
 
             samplePieces = buildSampleDataReverse(samplePieces, layer, rbmLayers);
 
@@ -116,10 +120,10 @@ public class DeepContrastiveDivergence {
                 final Matrix splitDataSet = samplePieces.get(r);
 
                 final Matrix visibleStates = this.contrastiveDivergence.runHidden(rbm, splitDataSet);
-                visibleStatesArray[r] = visibleStates.data();
+                visibleStatesArray[r] = visibleStates;
             }
         }
-        return new ImmutableMatrix(Matrix.appendColumns(visibleStatesArray));
+        return DenseMatrix.make(Matrix.concatColumns(visibleStatesArray));
     }
 
     /*
@@ -134,13 +138,13 @@ public class DeepContrastiveDivergence {
         }
         else {
             final RBMLayer previousLayer = rbmLayers[layer - 1];
-            double[][][] previousLayerOutputs = new double[previousLayer.size()][][];
+            Matrix[] previousLayerOutputs = new Matrix[previousLayer.size()];
             for(int r = 0; r < previousLayer.size(); r++) {
                 final RBM rbm = previousLayer.getRBM(r);
-                previousLayerOutputs[r] = this.contrastiveDivergence.runVisible(rbm, sampleData.get(r)).data();
+                previousLayerOutputs[r] = this.contrastiveDivergence.runVisible(rbm, sampleData.get(r));
             }
             // combine all outputs off hidden layer, then re-split them to input into the next visual layer
-            return new ImmutableMatrix(Matrix.appendColumns(previousLayerOutputs)).splitColumns(rbmLayer.size()) ;
+            return DenseMatrix.make(Matrix.concatColumns(previousLayerOutputs)).splitColumns(rbmLayer.size());
         }
     }
 
@@ -152,13 +156,13 @@ public class DeepContrastiveDivergence {
         }
         else {
             final RBMLayer previousLayer = rbmLayers[layer - 1];
-            double[][][] previousLayerOutputs = new double[previousLayer.size()][][];
+            Matrix[] previousLayerOutputs = new Matrix[previousLayer.size()];
             for(int r = 0; r < previousLayer.size(); r++) {
-                previousLayerOutputs[r] = this.contrastiveDivergence.runVisible(previousLayer.getRBM(r), trainingData.get(r)).data();
+                previousLayerOutputs[r] = this.contrastiveDivergence.runVisible(previousLayer.getRBM(r), trainingData.get(r));
                        // previousLayer.getRBM(r).getHidden().getValues() };
             }
             // combine all outputs off hidden layer, then re-split them to input into the next visual layer
-            return new ImmutableMatrix(Matrix.appendColumns(previousLayerOutputs)).splitColumns(rbmLayer.size()) ;
+            return DenseMatrix.make(Matrix.concatColumns(previousLayerOutputs)).splitColumns(rbmLayer.size());
         }
     }
 
@@ -170,12 +174,12 @@ public class DeepContrastiveDivergence {
         }
         else {
             final RBMLayer previousLayer = rbmLayers[layer + 1];
-            double[][][] previousLayerInputs = new double[previousLayer.size()][][];
+            Matrix[] previousLayerInputs = new Matrix[previousLayer.size()];
             for(int r = 0; r < previousLayer.size(); r++) {
-                previousLayerInputs[r] = this.contrastiveDivergence.runHidden(previousLayer.getRBM(r), trainingData.get(r)).data();
+                previousLayerInputs[r] = this.contrastiveDivergence.runHidden(previousLayer.getRBM(r), trainingData.get(r));
             }
             // combine all outputs off hidden layer, then re-split them to input into the next visual layer
-            return new ImmutableMatrix(Matrix.appendColumns(previousLayerInputs)).splitColumns(rbmLayer.size());
+            return DenseMatrix.make(Matrix.concatColumns(previousLayerInputs)).splitColumns(rbmLayer.size());
         }
     }
 

@@ -1,6 +1,6 @@
 package save;
 
-import math.matrix.Matrix;
+import math.Matrix;
 import nn.rbm.RBM;
 import nn.rbm.deep.DeepRBM;
 import nn.rbm.deep.LayerParameters;
@@ -39,10 +39,10 @@ public class TestDeepRBMPersister {
                 final Matrix rbm2Weights = rbm2.getWeights();
 
                 assertEquals(rbmWeights.rows(), rbm2Weights.rows());
-                assertEquals(rbmWeights.cols(), rbm2Weights.cols());
+                assertEquals(rbmWeights.columns(), rbm2Weights.columns());
 
                 for(int i = 0; i < rbmWeights.rows(); i++) {
-                    for(int j = 0; j < rbmWeights.cols(); j++) {
+                    for(int j = 0; j < rbmWeights.columns(); j++) {
                         assertEquals(rbmWeights.get(i, j), rbm2Weights.get(i, j), DELTA);
                     }
                 }

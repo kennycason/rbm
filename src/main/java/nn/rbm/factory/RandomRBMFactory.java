@@ -1,6 +1,6 @@
 package nn.rbm.factory;
 
-import math.matrix.Matrix;
+import math.Matrix;
 import nn.rbm.RBM;
 
 import java.util.Random;

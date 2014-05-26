@@ -1,12 +1,11 @@
 package math.functions;
 
-import com.google.common.base.Function;
+import cern.colt.function.tdouble.DoubleFunction;
 
 /**
- * Created by kenny on 5/12/14.
+ * Created by kenny on 5/24/14.
  */
-public class Round implements Function<Double, Double> {
-
+public class Round implements DoubleFunction {
     private final double threshold;
 
     public Round() {
@@ -18,7 +17,7 @@ public class Round implements Function<Double, Double> {
     }
 
     @Override
-    public Double apply(Double x) {
+    public double apply(double x) {
         return x >= threshold ? 1.0 : 0.0;
     }
 

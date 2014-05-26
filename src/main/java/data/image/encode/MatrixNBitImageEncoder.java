@@ -1,8 +1,8 @@
 package data.image.encode;
 
 import data.image.Image;
-import math.matrix.ImmutableMatrix;
-import math.matrix.Matrix;
+import math.DenseMatrix;
+import math.Matrix;
 
 import java.awt.image.BufferedImage;
 
@@ -30,7 +30,7 @@ public class MatrixNBitImageEncoder implements MatrixImageEncoder {
                 read(matrix, bi, x, y);
             }
         }
-        return new ImmutableMatrix(new double[][] { matrix });
+        return DenseMatrix.make(new double[][]{matrix});
     }
 
     private void read(final double[] matrix, final BufferedImage bi, final int x, final int y) {
@@ -45,4 +45,5 @@ public class MatrixNBitImageEncoder implements MatrixImageEncoder {
             flag >>= RGB_BITS / bits;
         }
     }
+
 }

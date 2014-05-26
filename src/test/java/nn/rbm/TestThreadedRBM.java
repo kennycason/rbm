@@ -3,7 +3,7 @@ package nn.rbm;
 import data.image.Image;
 import data.image.decode.Matrix24BitImageDecoder;
 import data.image.encode.Matrix24BitImageEncoder;
-import math.matrix.Matrix;
+import math.Matrix;
 import nn.rbm.deep.DeepRBM;
 import nn.rbm.deep.LayerParameters;
 import nn.rbm.factory.RandomRBMFactory;
@@ -36,7 +36,7 @@ public class TestThreadedRBM {
         };
 
         final DeepRBM deepRBM = new DeepRBM(layerParameters, RBM_FACTORY);
-        final LearningParameters learningParameters = new LearningParameters().setEpochs(10).setLog(false);
+        final LearningParameters learningParameters = new LearningParameters().setEpochs(100).setLog(false);
         final DeepContrastiveDivergence deepContrastiveDivergence = new DeepContrastiveDivergence(learningParameters);
         final MultiThreadedDeepContrastiveDivergence multiThreadedDeepContrastiveDivergence = new MultiThreadedDeepContrastiveDivergence(learningParameters, 4);
 
@@ -53,8 +53,16 @@ public class TestThreadedRBM {
         clock.reset();
         multiThreadedDeepContrastiveDivergence.learn(deepRBM, jetMatrix);
         final long time2 = clock.elapsedMillis();
-        LOGGER.info("Single Threaded Time: " + time1 + "ms");  // 100 epocs avg 69,934ms, 10 epocs avg 7765ms
-        LOGGER.info("Multi Threaded Time: " + time2 + "ms");   // 100 epocs avg 36,188ms, 10 epocs avg 3637ms
+        LOGGER.info("Single Threaded Time: " + time1 + "ms");
+        LOGGER.info("Multi Threaded Time: " + time2 + "ms");
+
+        // old matrix library
+        // single 100 epocs avg 69,934ms, 10 epocs avg 7,765ms
+        // multi  100 epocs avg 36,188ms, 10 epocs avg 3,637ms
+
+        // new matrix library
+        // single 100 epocs 31,992ms, 10 epocs 3,769ms
+        // multi  100 epocs 17,231ms, 10 epocs 1,851ms
 
         final Matrix hidden = deepContrastiveDivergence.runVisible(deepRBM, jetMatrix);
         final Matrix visual = deepContrastiveDivergence.runHidden(deepRBM, hidden);

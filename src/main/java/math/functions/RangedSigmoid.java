@@ -1,12 +1,11 @@
 package math.functions;
 
-import com.google.common.base.Function;
+import cern.colt.function.tdouble.DoubleFunction;
 
 /**
  * Created by kenny on 5/24/14.
  */
-public class RangedSigmoid implements Function<Double, Double> {
-
+public class RangedSigmoid implements DoubleFunction {
     private final double min;
 
     private final double max;
@@ -17,7 +16,7 @@ public class RangedSigmoid implements Function<Double, Double> {
     }
 
     @Override
-    public Double apply(Double x) {
+    public double apply(double x) {
         return min + ((max - min) / (1.0 + Math.exp(-x)));
     }
 
@@ -25,5 +24,4 @@ public class RangedSigmoid implements Function<Double, Double> {
     public String toString() {
         return "sigmoid(x) = min + ((max - min) / (1 + e^(-x)))";
     }
-
 }

@@ -1,14 +1,16 @@
 package nn.rbm.learn;
 
-import com.google.common.base.Function;
-import math.matrix.ImmutableMatrix;
-import math.matrix.Matrix;
+import cern.colt.function.tdouble.DoubleDoubleFunction;
+import cern.colt.function.tdouble.DoubleFunction;
+import math.DenseMatrix;
+import math.Matrix;
+import math.functions.Sigmoid;
+import math.functions.doubledouble.rbm.ActivationState;
 import nn.rbm.RBM;
 import org.apache.log4j.Logger;
 import utils.Clock;
 
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by kenny on 5/15/14.
@@ -18,17 +20,16 @@ public class RecurrentContrastiveDivergence {
 
     private static final Logger LOGGER = Logger.getLogger(RecurrentContrastiveDivergence.class);
 
-    private static final Random RANDOM = new Random();
+    private static final DoubleDoubleFunction ACTIVATION_STATE = new ActivationState();
 
-    private static final Clock CLOCK = Clock.getInstance();
+    private static final DoubleFunction SIGMOID = new Sigmoid();
+
+    private static final Clock CLOCK = new Clock();
 
     private final LearningParameters learningParameters;
 
-    private final Function<Double, Double> logisticsFunction;
-
     public RecurrentContrastiveDivergence(final LearningParameters learningParameters) {
         this.learningParameters = learningParameters;
-        this.logisticsFunction = learningParameters.getLogisticsFunction();
     }
 
     /*
@@ -44,24 +45,24 @@ public class RecurrentContrastiveDivergence {
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
 
             for(Matrix dataSet : dataSets) {
-                final Matrix recurrentDataSet = dataSet.appendColumns(weights);
+                final Matrix recurrentDataSet = dataSet.addColumns(weights);
                 // Read training data and sample from the hidden later, positive CD phase, (reality phase)
                 final Matrix positiveHiddenActivations = recurrentDataSet.dot(weights);
 
-                final Matrix positiveHiddenProbabilities = positiveHiddenActivations.apply(logisticsFunction);
-                final Matrix random = ImmutableMatrix.random(numberSamples, rbm.getHiddenSize());
-                final Matrix positiveHiddenStates = buildStatesFromActivationsMatrix(positiveHiddenProbabilities, random);
+                final Matrix positiveHiddenProbabilities = positiveHiddenActivations.apply(SIGMOID);
+
+                final Matrix positiveHiddenStates = positiveHiddenProbabilities.copy().apply(DenseMatrix.random(numberSamples, rbm.getHiddenSize()), ACTIVATION_STATE);
 
                 // Note that we're using the activation *probabilities* of the hidden states, not the hidden states themselves, when computing associations.
                 // We could also use the states; see section 3 of Hinton's A Practical Guide to Training Restricted Boltzmann Machines" for more.
                 final Matrix positiveAssociations = recurrentDataSet.transpose().dot(positiveHiddenProbabilities);
 
                 // Reconstruct the visible units and sample again from the hidden units. negative CD phase, aka the daydreaming phase.
-                final Matrix negativeVisibleActivations = positiveHiddenStates.dot(ImmutableMatrix.transpose(weights));
-                final Matrix negativeVisibleProbabilities = negativeVisibleActivations.apply(logisticsFunction);
+                final Matrix negativeVisibleActivations = positiveHiddenStates.dot(weights.transpose());
+                final Matrix negativeVisibleProbabilities = negativeVisibleActivations.apply(SIGMOID);
 
                 final Matrix negativeHiddenActivations = negativeVisibleProbabilities.dot(weights);
-                final Matrix negativeHiddenProbabilities = negativeHiddenActivations.apply(logisticsFunction);
+                final Matrix negativeHiddenProbabilities = negativeHiddenActivations.apply(SIGMOID);
 
                 // Note, again, that we're using the activation *probabilities* when computing associations, not the states themselves.
                 final Matrix negativeAssociations = negativeVisibleProbabilities.transpose().dot(negativeHiddenProbabilities);
@@ -90,14 +91,14 @@ public class RecurrentContrastiveDivergence {
 
         final Matrix weights = rbm.getWeights();
 
-        final Matrix recurrentDataSet = dataSet.appendColumns(weights);
+        final Matrix recurrentDataSet = dataSet.addColumns(weights);
 
         // Calculate the activations of the hidden units.
         final Matrix hiddenActivations = recurrentDataSet.dot(weights);
         // Calculate the probabilities of turning the hidden units on.
-        final Matrix hiddenProbabilities = hiddenActivations.apply(logisticsFunction);
+        final Matrix hiddenProbabilities = hiddenActivations.apply(SIGMOID);
         // Turn the hidden units on with their specified probabilities.
-        final Matrix hiddenStates = buildStatesFromActivationsMatrix(hiddenProbabilities, ImmutableMatrix.random(numberSamples, rbm.getHiddenSize()));
+        final Matrix hiddenStates = hiddenProbabilities.apply(DenseMatrix.random(numberSamples, rbm.getHiddenSize()), ACTIVATION_STATE);
 
         return hiddenStates;
     }
@@ -114,29 +115,19 @@ public class RecurrentContrastiveDivergence {
         final Matrix weights = rbm.getWeights();
 
         // Calculate the activations of the hidden units.
-        final Matrix visibleActivations = dataSet.dot(ImmutableMatrix.transpose(weights));
+        final Matrix visibleActivations = dataSet.dot(weights.transpose());
         // Calculate the probabilities of turning the visible units on.
-        final Matrix visibleProbabilities = visibleActivations.apply(this.logisticsFunction);
+        final Matrix visibleProbabilities = visibleActivations.apply(SIGMOID);
         // Turn the visible units on with their specified probabilities.
-        final Matrix visibleStates = buildStatesFromActivationsMatrix(visibleProbabilities, ImmutableMatrix.random(numberSamples, rbm.getVisibleSize() + rbm.getHiddenSize()));
+        final Matrix visibleStates = visibleProbabilities.apply(DenseMatrix.random(numberSamples, rbm.getVisibleSize() + rbm.getHiddenSize()), ACTIVATION_STATE);
 
         // trim off recurrent input
         final double[] copyOfFirstState = new double[rbm.getVisibleSize() - rbm.getHiddenSize()];
-        System.arraycopy(visibleStates.data()[0], 0, copyOfFirstState, 0, copyOfFirstState.length);
-        final Matrix visibleStatesTrimmed = new ImmutableMatrix(copyOfFirstState);
+        System.arraycopy(visibleStates.toArray()[0], 0, copyOfFirstState, 0, copyOfFirstState.length);
+        final Matrix visibleStatesTrimmed = DenseMatrix.make(new double[][] { copyOfFirstState });
         return visibleStatesTrimmed;
     }
 
-    private static Matrix buildStatesFromActivationsMatrix(final Matrix activationMatrix, Matrix randomStateMatrix) {
-        final int rows = activationMatrix.rows();
-        final int cols = activationMatrix.cols();
-        final double[][] stateMatrix = new double[rows][cols];
-        for(int i = 0; i < rows; i++) {
-            for(int j = 0; j < cols; j++) {
-                stateMatrix[i][j] = activationMatrix.get(i, j) >= randomStateMatrix.get(i, j) ? 1.0 : 0.0;
-            }
-        }
-        return new ImmutableMatrix(stateMatrix);
-    }
+
 
 }

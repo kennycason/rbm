@@ -2,7 +2,7 @@ package data.image;
 
 import data.image.decode.Matrix24BitImageDecoder;
 import data.image.encode.Matrix24BitImageEncoder;
-import math.matrix.Matrix;
+import math.Matrix;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -26,7 +26,7 @@ public class TestImage {
 
         final Matrix24BitImageEncoder matrix24BitImageEncoder = new Matrix24BitImageEncoder();
         final Matrix matrix = matrix24BitImageEncoder.encode(image);
-        assertEquals(400 * 24 * 250, matrix.cols());
+        assertEquals(400 * 24 * 250, matrix.columns());
         assertEquals(1, matrix.rows());
 
         final Matrix24BitImageDecoder matrix24BitImageDecoder = new Matrix24BitImageDecoder(250);

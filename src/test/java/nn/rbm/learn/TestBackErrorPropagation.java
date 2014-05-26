@@ -1,9 +1,9 @@
 package nn.rbm.learn;
 
-import com.google.common.base.Function;
+import cern.colt.function.tdouble.DoubleFunction;
+import math.DenseMatrix;
+import math.Matrix;
 import math.functions.Round;
-import math.matrix.ImmutableMatrix;
-import math.matrix.Matrix;
 import nn.rbm.RBM;
 import nn.rbm.factory.RandomRBMFactory;
 import org.apache.log4j.Logger;
@@ -19,7 +19,7 @@ public class TestBackErrorPropagation {
 
     private static final Logger LOGGER = Logger.getLogger(TestBackErrorPropagation.class);
 
-    private static final Function<Double, Double> ROUND = new Round();
+    private static final DoubleFunction ROUND = new Round();
 
     /**
      * given the structure of an rbm, this will not learn the same way a layered bep nn will,
@@ -30,22 +30,22 @@ public class TestBackErrorPropagation {
 
         // even/odd number of 1s
         final List<Matrix> trainData = new ArrayList<>();
-        trainData.add(new ImmutableMatrix(new double[] {0,0,1}));
-        trainData.add(new ImmutableMatrix(new double[] {0,1,0}));
-       // trainData.add(new ImmutableMatrix(new double[] {0,1,1}));
-      //  trainData.add(new ImmutableMatrix(new double[] {1,0,0}));
-        trainData.add(new ImmutableMatrix(new double[] {1,0,1}));
-        trainData.add(new ImmutableMatrix(new double[] {1,1,0}));
-        trainData.add(new ImmutableMatrix(new double[] {1,1,1}));
+        trainData.add(DenseMatrix.make(new double[][]{{0, 0, 1}}));
+        trainData.add(DenseMatrix.make(new double[][] {{0,1,0}}));
+       // trainData.add(DenseMatrix.make(new double[][] {{0,1,1}}));
+      //  trainData.add(DenseMatrix.make(new double[][] {{1,0,0}}));
+        trainData.add(DenseMatrix.make(new double[][] {{1,0,1}}));
+        trainData.add(DenseMatrix.make(new double[][] {{1,1,0}}));
+        trainData.add(DenseMatrix.make(new double[][] {{1,1,1}}));
 
         final List<Matrix> teacherSignals = new ArrayList<>();
-        teacherSignals.add(new ImmutableMatrix(new double[] {1,0}));
-        teacherSignals.add(new ImmutableMatrix(new double[] {1,0}));
-      //  teacherSignals.add(new ImmutableMatrix(new double[] {0,1}));
-      //  teacherSignals.add(new ImmutableMatrix(new double[] {1,0}));
-        teacherSignals.add(new ImmutableMatrix(new double[] {0,1}));
-        teacherSignals.add(new ImmutableMatrix(new double[] {0,1}));
-        teacherSignals.add(new ImmutableMatrix(new double[] {1,0}));
+        teacherSignals.add(DenseMatrix.make(new double[][] {{1,0}}));
+        teacherSignals.add(DenseMatrix.make(new double[][] {{1,0}}));
+      //  teacherSignals.add(DenseMatrix.make(new double[][] {{0,1}));
+      //  teacherSignals.add(DenseMatrix.make(new double[][] {{1,0}));
+        teacherSignals.add(DenseMatrix.make(new double[][] {{0,1}}));
+        teacherSignals.add(DenseMatrix.make(new double[][] {{0,1}}));
+        teacherSignals.add(DenseMatrix.make(new double[][] {{1,0}}));
 
         final RBM rbm = new RandomRBMFactory().build(3, 2);
 

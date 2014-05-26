@@ -1,6 +1,6 @@
 package nn.rbm.learn;
 
-import com.google.common.base.Function;
+import cern.colt.function.tdouble.DoubleFunction;
 import math.functions.Sigmoid;
 
 /**
@@ -10,7 +10,7 @@ public class LearningParameters {
 
     private double learningRate = 0.1;
 
-    private Function<Double, Double> logisticsFunction = new Sigmoid();
+    private DoubleFunction logisticsFunction = new Sigmoid();
 
     private int epochs = 15000;
 
@@ -25,11 +25,11 @@ public class LearningParameters {
         return this;
     }
 
-    public Function<Double, Double> getLogisticsFunction() {
+    public DoubleFunction getLogisticsFunction() {
         return logisticsFunction;
     }
 
-    public LearningParameters setLogisticsFunction(Function<Double, Double> logisticsFunction) {
+    public LearningParameters setLogisticsFunction(DoubleFunction logisticsFunction) {
         this.logisticsFunction = logisticsFunction;
         return this;
     }

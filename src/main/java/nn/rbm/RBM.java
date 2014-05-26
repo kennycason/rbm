@@ -1,7 +1,7 @@
 package nn.rbm;
 
-import math.matrix.Matrix;
-import math.matrix.MutableMatrix;
+import math.DenseMatrix;
+import math.Matrix;
 
 import java.util.Random;
 
@@ -13,54 +13,51 @@ public class RBM {
 
     private static final Random RANDOM = new Random();
 
-    private int visibleSize;
-
-    private int hiddenSize;
-
     private Matrix weights;
 
     public RBM(final int visibleSize, final int hiddenSize) {
-        this.visibleSize = visibleSize;
-        this.hiddenSize = hiddenSize;
-        this.weights = new MutableMatrix(new double[visibleSize][hiddenSize]);
+        this.weights = DenseMatrix.randomGaussian(visibleSize, hiddenSize);
     }
 
     public int getVisibleSize() {
-        return visibleSize;
+        return weights.rows();
     }
 
     public int getHiddenSize() {
-        return hiddenSize;
+        return weights.columns();
     }
 
     public void addVisibleNodes(int n) {
-        final Matrix weights = new MutableMatrix(visibleSize + n, hiddenSize);
+
+        final Matrix weights = DenseMatrix.make(getVisibleSize() + n, getHiddenSize());
         // copy original values
         for(int i = 0; i < this.weights.rows(); i++) {
-            for(int j = 0; j < this.weights.cols(); j++) {
+            for(int j = 0; j < this.weights.columns(); j++) {
                 weights.set(i, j, this.weights.get(i, j));
             }
         }
         // randomly init new weights;
         for(int i = 0; i < this.weights.rows(); i++) {
-            for(int j = this.weights.cols(); j < weights.cols(); j++) {
+            for(int j = this.weights.columns(); j < weights.columns(); j++) {
                 weights.set(i, j, RANDOM.nextGaussian() * 0.1);
             }
         }
         this.weights = weights;
-        this.visibleSize = weights.rows();
-        this.hiddenSize = weights.cols();
     }
 
     public Matrix getWeights() {
         return weights;
     }
 
+    public void setWeights(Matrix weights) {
+        this.weights = weights;
+    }
+
     @Override
     public String toString() {
         return "RBM{" +
-                "visibleSize=" + visibleSize +
-                ", hiddenSize=" + hiddenSize +
+                "visibleSize=" + getVisibleSize() +
+                ", hiddenSize=" + getHiddenSize() +
                 ", weights=" + weights +
                 '}';
     }

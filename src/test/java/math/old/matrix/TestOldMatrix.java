@@ -1,4 +1,5 @@
-import math.matrix.Matrix;
+package math.old.matrix;
+
 import org.junit.Test;
 
 import java.util.List;
@@ -8,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by kenny on 5/16/14.
  */
-public class TestMatrix {
+public class TestOldMatrix {
 
     private static final double DELTA = 0.0;
 

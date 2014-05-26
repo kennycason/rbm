@@ -1,7 +1,7 @@
 package nn.rbm.save;
 
 import com.google.common.base.Function;
-import math.matrix.Matrix;
+import math.Matrix;
 import nn.rbm.RBM;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;

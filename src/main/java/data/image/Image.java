@@ -27,12 +27,6 @@ public class Image {
 
     public Image(final BufferedImage bi) {
         this.bi = bi;
-//        this.bi = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
-//        for(int x = 0; x < bi.getWidth(); x++) {
-//            for(int y = 0; y < bi.getHeight(); y++) {
-//                this.bi.setRGB(x, y, bi.getRGB(x, y));
-//            }
-//        }
     }
 
     public void set(int x, int y, int rgb) {

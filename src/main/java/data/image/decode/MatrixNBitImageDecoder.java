@@ -1,7 +1,7 @@
 package data.image.decode;
 
 import data.image.Image;
-import math.matrix.Matrix;
+import math.Matrix;
 
 import java.awt.image.BufferedImage;
 
@@ -27,7 +27,7 @@ public class MatrixNBitImageDecoder implements MatrixImageDecoder {
 
     @Override
     public Image decode(final Matrix matrix) {
-        cols = matrix.cols() / bits / rows;
+        cols = matrix.columns() / bits / rows;
         BufferedImage bi = new BufferedImage(cols, rows, BufferedImage.TYPE_INT_RGB);
         int y = 0;
         for(int x = 0; x < cols * rows; x++) {

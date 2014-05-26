@@ -1,7 +1,8 @@
 package data.mnist;
 
-import math.matrix.ImmutableMatrix;
-import math.matrix.Matrix;
+
+import math.DenseMatrix;
+import math.Matrix;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -42,10 +43,10 @@ public class MNISTImageLoader {
             for(int i = 0; i < numberImages; i++) {
                 data[i] = readImage(byteBuffer, numberRows, numberCols);
             }
-            return new ImmutableMatrix(data);
+            return DenseMatrix.make(data);
         } catch(IOException e) {
             LOGGER.error(e);
-            return new ImmutableMatrix(new double[0][0]);
+            return DenseMatrix.make(new double[0][0]);
         }
     }
 
@@ -80,10 +81,10 @@ public class MNISTImageLoader {
             for(int i = 0; i < numberItems; i++) {
                 data[i] = new double[] { byteBuffer.get() & 0xFF };
             }
-            return new ImmutableMatrix(data);
+            return DenseMatrix.make(data);
         } catch(IOException e) {
             LOGGER.error(e);
-            return new ImmutableMatrix(new double[0][0]);
+            return DenseMatrix.make(new double[0][0]);
         }
     }
 

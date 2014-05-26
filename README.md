@@ -2,7 +2,7 @@ Restricted Boltzmann Machine
 ===========
 RBM Contrastive Divergence algorithm implemented from http://blog.echen.me/2011/07/18/introduction-to-restricted-boltzmann-machines/
 
-This version includes image encoding/decoding schemes, a deep CD RBM.
+This version includes image encoding/decoding schemes, a deep CD RBM. Uses <a href="https://sites.google.com/site/piotrwendykier/software/parallelcolt" target="_blank">Parallel Colt</a> for matrix processing.
 
 Results RBM(visual=6,hidden=4)
 ```
@@ -45,7 +45,7 @@ Deep RBM - Input a 400*250 pixel image of a fighter jet at 24bit color resolutio
 Number Recognition
 ```
 // INPUT
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -75,7 +75,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -105,7 +105,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -135,7 +135,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -165,7 +165,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -195,7 +195,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -225,7 +225,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -255,29 +255,29 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□■□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.learn.ContrastiveDivergence - Start Learning (7 samples)
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 0/15000, error: 1305.5197925558577, time: 0.059s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 100/15000, error: 57.300594478427854, time: 0.004s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 200/15000, error: 15.952329441261893, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 300/15000, error: 5.4044291068371155, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 400/15000, error: 2.602268788842556, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 500/15000, error: 1.4970038901297982, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 600/15000, error: 1.1067551950980756, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 700/15000, error: 0.8295110168889177, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 800/15000, error: 0.5378197659583355, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 900/15000, error: 0.3994753611475093, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Start Learning (7 samples)
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 0/15000, error: 1305.5197925558577, time: 0.059s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 100/15000, error: 57.300594478427854, time: 0.004s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 200/15000, error: 15.952329441261893, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 300/15000, error: 5.4044291068371155, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 400/15000, error: 2.602268788842556, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 500/15000, error: 1.4970038901297982, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 600/15000, error: 1.1067551950980756, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 700/15000, error: 0.8295110168889177, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 800/15000, error: 0.5378197659583355, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 900/15000, error: 0.3994753611475093, time: 0.003s
 ...
 ...
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 14400/15000, error: 0.002183322948934887, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 14500/15000, error: 0.0018464431984471126, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 14600/15000, error: 0.002316604784920346, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 14700/15000, error: 0.015824371649477142, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 14800/15000, error: 0.0033692543108419077, time: 0.003s
-INFO  nn.rbm.learn.ContrastiveDivergence - Epoch: 14900/15000, error: 0.006265503532066407, time: 0.003s
-INFO  nn.rbm.TestRBM - Data Index: 0
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 14400/15000, error: 0.002183322948934887, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 14500/15000, error: 0.0018464431984471126, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 14600/15000, error: 0.002316604784920346, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 14700/15000, error: 0.015824371649477142, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 14800/15000, error: 0.0033692543108419077, time: 0.003s
+INFO  nn.rbm.learn.OldContrastiveDivergence - Epoch: 14900/15000, error: 0.006265503532066407, time: 0.003s
+INFO  nn.rbm.TestOldRBM - Data Index: 0
+INFO  nn.rbm.TestOldRBM -
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -307,7 +307,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -337,7 +337,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -367,7 +367,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -397,7 +397,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -427,7 +427,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
@@ -457,7 +457,7 @@ INFO  nn.rbm.TestRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 
-INFO  nn.rbm.TestRBM -
+INFO  nn.rbm.TestOldRBM -
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□
 □□□□□□□□□□□□□□□□□□□□□□□□□□□□

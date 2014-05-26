@@ -1,7 +1,7 @@
 package data.image.decode;
 
 import data.image.Image;
-import math.matrix.Matrix;
+import math.Matrix;
 
 public interface MatrixImageDecoder {
 

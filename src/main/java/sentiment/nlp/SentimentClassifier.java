@@ -1,9 +1,9 @@
 package sentiment.nlp;
 
 import edu.stanford.nlp.ling.CoreLabel;
+import math.DenseMatrix;
+import math.Matrix;
 import math.Vector;
-import math.matrix.ImmutableMatrix;
-import math.matrix.Matrix;
 import nn.rbm.deep.DeepRBM;
 import nn.rbm.deep.LayerParameters;
 import nn.rbm.factory.RBMFactory;
@@ -57,21 +57,21 @@ public class SentimentClassifier {
         this.indexedTokenDictionary = new IndexedTokenDictionary("/data/nlp/english_top100k.txt");
         this.deepRBM = buildDeepRBM();
         //train(loadTrainingData("/data/nlp/ecommerce_reviews_100.csv"));
-        train(new ImmutableMatrix(buildInputFromSentence("I am a piece of poop")));
+        train(buildInputFromSentence("I am a piece of poop"));
     }
 
 
     public void classify(final String sentence) {
-        final Matrix input = new ImmutableMatrix(buildInputFromSentence(sentence));
+        final Matrix input = buildInputFromSentence(sentence);
         LOGGER.info("input: " + input);
         final Matrix hidden = this.multiThreadedDeepContrastiveDivergence.runVisible(this.deepRBM, input);
         final Matrix visible = this.multiThreadedDeepContrastiveDivergence.runHidden(this.deepRBM, hidden);
         LOGGER.info("output: " + visible);
 
-        LOGGER.info("error: " + Vector.getSquaredError(input.row(0), visible.row(0)) / input.cols());
+        LOGGER.info("error: " + Vector.getSquaredError(input.row(0).toArray(), visible.row(0).toArray()) / input.columns());
     }
 
-    private Vector buildInputFromSentence(final String sentence) {
+    private Matrix buildInputFromSentence(final String sentence) {
         final List<CoreLabel> tokens = ENGLISH_WORD_TOKENIZER.tokenize(sentence);
         final double[] data = new double[Math.max(this.indexedTokenDictionary.size(), 100000)];
         for(CoreLabel token : tokens) {
@@ -81,7 +81,7 @@ public class SentimentClassifier {
             final int index = this.indexedTokenDictionary.index(value);
             data[index] = 1.0;
         }
-        return new Vector(data);
+        return DenseMatrix.make(new double[][] { data });
     }
 
     /*
@@ -91,19 +91,19 @@ public class SentimentClassifier {
         LOGGER.info("Loading training data from: " + file);
         try {
             final List<String> lines = IOUtils.readLines(SentimentClassifier.class.getResourceAsStream(file));
-            final List<Vector> trainingData = new ArrayList<>(lines.size());
+            final List<Matrix> trainingData = new ArrayList<>(lines.size());
             for(String line : lines) {
                 final int firstCommaIndex = line.indexOf(','); // todo prepend to visual input
                 final String rating = line.substring(0, firstCommaIndex);
                 final String comment = line.substring(firstCommaIndex + 2, line.length() - 1); // trim quotes
                 trainingData.add(this.buildInputFromSentence(comment)); // todo parse to sentences
             }
-            return new ImmutableMatrix(trainingData);
+            return trainingData.get(0); // TODO create concat rows method
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
 
-        return new ImmutableMatrix(0, Math.max(this.indexedTokenDictionary.size(), 100000));
+        return DenseMatrix.make(0, Math.max(this.indexedTokenDictionary.size(), 100000));
     }
 
     private DeepRBM buildDeepRBM() {
@@ -126,7 +126,7 @@ public class SentimentClassifier {
         LOGGER.info("Start training");
         final Clock clock = new Clock();
         clock.start();
-        LOGGER.info("input size: " + trainingData.cols() + ", rbm visual size: " + this.deepRBM.getVisibleSize());
+        LOGGER.info("input size: " + trainingData.columns() + ", rbm visual size: " + this.deepRBM.getVisibleSize());
         multiThreadedDeepContrastiveDivergence.learn(deepRBM, trainingData);
         final long elapsedMilliseconds = clock.elapsedMillis();
         LOGGER.info("Finished training in " + elapsedMilliseconds + "ms");

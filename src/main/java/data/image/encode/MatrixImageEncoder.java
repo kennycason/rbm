@@ -1,7 +1,7 @@
 package data.image.encode;
 
 import data.image.Image;
-import math.matrix.Matrix;
+import math.Matrix;
 
 /**
  * Created by kenny on 5/20/14.

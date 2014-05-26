@@ -1,7 +1,8 @@
 package nn.rbm.learn;
 
-import math.matrix.ImmutableMatrix;
-import math.matrix.Matrix;
+
+import math.DenseMatrix;
+import math.Matrix;
 import nn.rbm.RBM;
 import nn.rbm.deep.DeepRBM;
 import nn.rbm.deep.RBMLayer;
@@ -102,13 +103,13 @@ public class MultiThreadedDeepContrastiveDivergence {
         }
         else {
             final RBMLayer previousLayer = rbmLayers[layer - 1];
-            double[][][] previousLayerOutputs = new double[previousLayer.size()][][];
+            Matrix[] previousLayerOutputs = new Matrix[previousLayer.size()];
             for(int r = 0; r < previousLayer.size(); r++) {
                 final RBM rbm = previousLayer.getRBM(r);
-                previousLayerOutputs[r] = this.contrastiveDivergence.runVisible(rbm, sampleData.get(r)).data();
+                previousLayerOutputs[r] = this.contrastiveDivergence.runVisible(rbm, sampleData.get(r));
             }
             // combine all outputs off hidden layer, then re-split them to input into the next visual layer
-            return new ImmutableMatrix(Matrix.appendColumns(previousLayerOutputs)).splitColumns(rbmLayer.size()) ;
+            return DenseMatrix.make(Matrix.concatColumns(previousLayerOutputs)).splitColumns(rbmLayer.size());
         }
     }
 

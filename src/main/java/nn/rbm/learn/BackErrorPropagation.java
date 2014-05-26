@@ -1,11 +1,11 @@
 package nn.rbm.learn;
 
-import com.google.common.base.Function;
+
+import cern.colt.function.tdouble.DoubleFunction;
+import math.DenseMatrix;
+import math.Matrix;
 import math.functions.OneMinusX;
 import math.functions.Sigmoid;
-import math.matrix.ImmutableMatrix;
-import math.matrix.Matrix;
-import math.matrix.MutableMatrix;
 import nn.rbm.RBM;
 import org.apache.log4j.Logger;
 
@@ -18,17 +18,14 @@ public class BackErrorPropagation {
 
     private static final Logger LOGGER = Logger.getLogger(BackErrorPropagation.class);
 
-    private static final Function<Double, Double> ONE_MINUS_X = new OneMinusX();
+    private static final DoubleFunction ONE_MINUS_X = new OneMinusX();
 
-    private static final Function<Double, Double> SIGMOID = new Sigmoid();
+    private static final DoubleFunction SIGMOID = new Sigmoid();
 
     private final LearningParameters learningParameters;
 
-    private final ContrastiveDivergence contrastiveDivergence;
-
     public BackErrorPropagation(final LearningParameters learningParameters) {
         this.learningParameters = learningParameters;
-        this.contrastiveDivergence = new ContrastiveDivergence(learningParameters);
     }
 
     public double learn(final RBM rbm, final List<Matrix> trainData, final List<Matrix> teacherSignals) {
@@ -36,8 +33,8 @@ public class BackErrorPropagation {
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
             error = 0;
             for(int i = 0; i < trainData.size(); i++) {
-                final Matrix input = new ImmutableMatrix(trainData.get(i));
-                final Matrix teacherSignal = new ImmutableMatrix(teacherSignals.get(i));
+                final Matrix input = trainData.get(i).copy();
+                final Matrix teacherSignal = teacherSignals.get(i).copy();
 
                 Matrix output = feedFoward(rbm, input);
                 error += calculateAvgSquaredError(output, teacherSignal);
@@ -61,7 +58,7 @@ public class BackErrorPropagation {
      * feed forward
      */
     public Matrix feedFoward(final RBM rbm, final Matrix input) {
-        final Matrix output = new MutableMatrix(1, rbm.getHiddenSize());
+        final Matrix output = DenseMatrix.make(1, rbm.getHiddenSize());
 
         final Matrix weights = rbm.getWeights();
 
@@ -70,7 +67,7 @@ public class BackErrorPropagation {
                 output.set(0, j, output.get(0, j) + input.get(0, i) * weights.get(i, j));
             }
         }
-        return new ImmutableMatrix(output).apply(SIGMOID);
+        return output.apply(SIGMOID);
     }
 
 
@@ -79,7 +76,7 @@ public class BackErrorPropagation {
      */
     private Matrix calculateErrors(final Matrix output, final Matrix teacherSignals) {
         // (teacher_i - output_i)  * output_i * (1 - output_i)
-        final Matrix errors = teacherSignals.subtract(output).multiply(output).multiply(output.apply(ONE_MINUS_X));
+        final Matrix errors = teacherSignals.copy().subtract(output).multiply(output).multiply(output.apply(ONE_MINUS_X));
         return errors;
     }
 
@@ -102,6 +99,6 @@ public class BackErrorPropagation {
      *
      */
     private double calculateAvgSquaredError(final Matrix output, final Matrix teacherSignals) {
-        return output.subtract(teacherSignals).pow(2).sum() / output.cols();
+        return output.copy().subtract(teacherSignals).pow(2).sum() / output.columns();
     }
 }

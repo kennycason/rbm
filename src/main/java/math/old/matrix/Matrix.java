@@ -1,4 +1,4 @@
-package math.matrix;
+package math.old.matrix;
 
 import com.google.common.base.Function;
 import math.Vector;
@@ -11,6 +11,7 @@ import java.util.Random;
 /**
  * Created by kenny on 5/14/14.
  */
+@Deprecated
 public abstract class Matrix {
 
     protected static final Random RANDOM = new Random();
