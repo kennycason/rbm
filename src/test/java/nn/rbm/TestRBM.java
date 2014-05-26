@@ -1,5 +1,6 @@
 package nn.rbm;
 
+import cern.colt.function.tdouble.DoubleFunction;
 import data.image.Image;
 import data.image.decode.Matrix1BitImageDecoder;
 import data.image.decode.Matrix24BitImageDecoder;
@@ -11,6 +12,7 @@ import data.image.encode.MatrixGrayscaleImageEncoder;
 import data.mnist.MNISTImageLoader;
 import math.DenseMatrix;
 import math.Matrix;
+import math.functions.Round;
 import nn.rbm.deep.DeepRBM;
 import nn.rbm.deep.LayerParameters;
 import nn.rbm.factory.RandomRBMFactory;
@@ -507,7 +509,7 @@ public class TestRBM {
         final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
 
         final RBM rbm = RBM_FACTORY.build(imageDim * 2, 30); // two times the input because of the recurrent input
-        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(10000));
+        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(5000));
 
         final List<Matrix> trainingData = new ArrayList<>(5);
         trainingData.add(DenseMatrix.make(totalDataSet.row(0)));
@@ -524,6 +526,7 @@ public class TestRBM {
         recurrentContrastiveDivergence.learn(rbm, trainingData);
 
         // see if network consecutively draws numbers
+        final DoubleFunction round = new Round(0.6);
         Matrix hidden;
         Matrix visual = trainingData.get(trainingData.size() - 1);
         LOGGER.info("Input : " + PrettyPrint.toPixelBox(visual.row(0).toArray(), 28, 0.5));
@@ -533,7 +536,59 @@ public class TestRBM {
 
             visual = DenseMatrix.make(visual.data().viewPart(0, imageDim, 1, imageDim)); // trim off the previous input and only pass on the prediction
             LOGGER.info("Guess of what comes next\n" + PrettyPrint.toPixelBox(visual.row(0).toArray(), 28, 0.6));
+            visual.apply(round);
 
+        }
+    }
+
+
+    /**
+     * learn sequence 4 bit binary number
+     *
+     * doesn't work so well heh
+     */
+    @Test
+    public void recurrentBinary() {
+
+        final RBM rbm = RBM_FACTORY.build(8, 30); // two times the input because of the recurrent input
+        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(10000));
+
+        final List<Matrix> trainingData = new ArrayList<>(16);
+        trainingData.add(DenseMatrix.make(new double[][]{{0,0,0,0}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{0,0,0,1}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{0,0,1,0}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{0,0,1,1}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{0,1,0,0}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{0,1,0,1}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{0,1,1,0}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{0,1,1,1}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{1,0,0,0}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{1,0,0,1}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{1,0,1,0}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{1,0,1,1}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{1,1,0,0}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{1,1,0,1}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{1,1,1,0}}));
+        trainingData.add(DenseMatrix.make(new double[][] {{1,1,1,1}}));
+
+        for(Matrix data : trainingData) {
+            LOGGER.info(PrettyPrint.toPixelBox(data.toArray(), 0.5));
+        }
+
+        recurrentContrastiveDivergence.learn(rbm, trainingData);
+
+        // see if network consecutively draws numbers
+        final DoubleFunction round = new Round(0.5);
+        Matrix hidden;
+        Matrix visual = trainingData.get(trainingData.size() - 1);
+        LOGGER.info("Input : " + PrettyPrint.toPixelBox(visual.toArray(), 0.5));
+        for(int i = 0; i < trainingData.size() - 1; i++) {
+            hidden = recurrentContrastiveDivergence.runVisible(rbm, visual);
+            visual = recurrentContrastiveDivergence.runHidden(rbm, hidden);
+
+            visual = DenseMatrix.make(visual.data().viewPart(0, 4, 1, 4)); // trim off the previous input and only pass on the prediction
+            LOGGER.info("Guess of what came before: " + PrettyPrint.toPixelBox(visual.toArray(), 0.5));
+            visual.apply(round);
         }
     }
 

@@ -49,7 +49,7 @@ public class RecurrentContrastiveDivergence {
 
             for(Matrix event : events) {
                 final Matrix recurrentDataSet = event.addColumns(previousEvent);
-                // LOGGER.info("Recurrent Dataset\n" + PrettyPrint.toPixelBox(recurrentDataSet.row(0).toArray(), 28, 0.5));
+                // LOGGER.info("Recurrent Dataset\n" + PrettyPrint.toPixelBox(recurrentDataSet.toArray(), 0.5));
 
                 // Read training data and sample from the hidden later, positive CD phase, (reality phase)
                 final Matrix positiveHiddenActivations = recurrentDataSet.dot(weights);
