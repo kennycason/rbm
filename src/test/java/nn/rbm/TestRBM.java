@@ -508,20 +508,19 @@ public class TestRBM {
 
         final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
 
-        final RBM rbm = RBM_FACTORY.build(imageDim * 2, 30); // two times the input because of the recurrent input
-        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(7500).setLearningRate(0.1));
+        final RBM rbm = RBM_FACTORY.build(imageDim * 2, 40); // two times the input because of the recurrent input
+        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(15000).setLearningRate(0.75));
 
-        final List<Matrix> trainingData = new ArrayList<>(10);
+        final List<Matrix> trainingData = new ArrayList<>();
         trainingData.add(DenseMatrix.make(totalDataSet.row(0)));      // 5
         trainingData.add(DenseMatrix.make(totalDataSet.row(1)));      // 0
         trainingData.add(DenseMatrix.make(totalDataSet.row(2)));      // 4
         trainingData.add(DenseMatrix.make(totalDataSet.row(3)));      // 1
         trainingData.add(DenseMatrix.make(totalDataSet.row(4)));      // 9
-        trainingData.add(DenseMatrix.make(totalDataSet.row(5)));     // 2
-     //   trainingData.add(DenseMatrix.make(totalDataSet.row(6)));     // 1
-        trainingData.add(DenseMatrix.make(totalDataSet.row(7)));    // 3
-    //    trainingData.add(DenseMatrix.make(totalDataSet.row(8)));   // 1
-        trainingData.add(DenseMatrix.make(totalDataSet.row(9)));     // 4
+        trainingData.add(DenseMatrix.make(totalDataSet.row(5)));      // 2
+     //   trainingData.add(DenseMatrix.make(totalDataSet.row(6)));    // 1
+        trainingData.add(DenseMatrix.make(totalDataSet.row(7)));      // 3 // teach it to learn 4 in an infinite loop
+        trainingData.add(DenseMatrix.make(totalDataSet.row(7)));      // 3
 
 
         for(Matrix data : trainingData) {
@@ -533,7 +532,7 @@ public class TestRBM {
         // see if network consecutively draws numbers
         final DoubleFunction round = new Round(0.6);
         Matrix hidden;
-        Matrix visual = trainingData.get(trainingData.size() - 1);
+        Matrix visual = trainingData.get(0);
         LOGGER.info("Input : " + PrettyPrint.toPixelBox(visual.row(0).toArray(), 28, 0.5));
         for(int i = 0; i < trainingData.size() - 1; i++) {
             hidden = recurrentContrastiveDivergence.runVisible(rbm, visual);

@@ -45,20 +45,20 @@ public class RecurrentContrastiveDivergence {
         CLOCK.start();
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
 
-            Matrix previousEvent = DenseMatrix.make(events.get(0).rows(), events.get(0).columns());
+            for(int event = 0; event < events.size(); event++) {
 
-            for(Matrix event : events) {
-                final Matrix recurrentDataSet = event.addColumns(previousEvent);
+                final Matrix currentAndNextEvent = createTemporalInput(event, events);
+
                 // LOGGER.info("Recurrent Dataset\n" + PrettyPrint.toPixelBox(recurrentDataSet.toArray(), 0.5));
 
                 // Read training data and sample from the hidden later, positive CD phase, (reality phase)
-                final Matrix positiveHiddenActivations = recurrentDataSet.dot(weights);
+                final Matrix positiveHiddenActivations = currentAndNextEvent.dot(weights);
                 final Matrix positiveHiddenProbabilities = positiveHiddenActivations.apply(SIGMOID);
-                final Matrix positiveHiddenStates = positiveHiddenProbabilities.copy().apply(DenseMatrix.random(event.rows(), rbm.getHiddenSize()), ACTIVATION_STATE);
+                final Matrix positiveHiddenStates = positiveHiddenProbabilities.copy().apply(DenseMatrix.random(currentAndNextEvent.rows(), rbm.getHiddenSize()), ACTIVATION_STATE);
 
                 // Note that we're using the activation *probabilities* of the hidden states, not the hidden states themselves, when computing associations.
                 // We could also use the states; see section 3 of Hinton's A Practical Guide to Training Restricted Boltzmann Machines" for more.
-                final Matrix positiveAssociations = recurrentDataSet.transpose().dot(positiveHiddenProbabilities);
+                final Matrix positiveAssociations = currentAndNextEvent.transpose().dot(positiveHiddenProbabilities);
 
                 // Reconstruct the visible units and sample again from the hidden units. negative CD phase, aka the daydreaming phase.
                 final Matrix negativeVisibleActivations = positiveHiddenStates.dot(weights.transpose());
@@ -72,15 +72,22 @@ public class RecurrentContrastiveDivergence {
                 // Update weights.
                 weights.add(positiveAssociations.subtract(negativeAssociations).divide(numberEvents).multiply(learningParameters.getLearningRate()));
 
-                final double error = recurrentDataSet.subtract(negativeVisibleProbabilities).pow(2).sum();
+                final double error = currentAndNextEvent.subtract(negativeVisibleProbabilities).pow(2).sum();
 
-                previousEvent = event;
                 if(epoch % 10 == 0) {
                     LOGGER.info("Epoch: " + epoch + "/" + learningParameters.getEpochs() + ", error: " + error + ", time: " + CLOCK.elapsedMillis() + "ms");
                     CLOCK.reset();
                 }
             }
         }
+    }
+
+    private Matrix createTemporalInput(int event, List<Matrix> events) {
+        final Matrix currentEvent = events.get(event);
+        if(event < events.size() - 1) {
+            return currentEvent.addColumns(events.get(event + 1)); // append next event
+        }
+        return currentEvent.addColumns(DenseMatrix.make(currentEvent.rows(), currentEvent.columns()));
     }
 
     /*
@@ -91,19 +98,17 @@ public class RecurrentContrastiveDivergence {
 
         Recurrent version pass in an empty t-1 visible layer
      */
-    public Matrix runVisible(final RBM rbm, final Matrix dataSet) {
-        final int numberSamples = dataSet.rows();
-
+    public Matrix runVisible(final RBM rbm, final Matrix event) {
         final Matrix weights = rbm.getWeights();
 
-        final Matrix recurrentDataSet = dataSet.addColumns(DenseMatrix.make(dataSet.rows(), dataSet.columns())); // append an empty t-1 visible layer
+        final Matrix currentAndNoNextEvent = event.addColumns(DenseMatrix.make(event.rows(), event.columns())); // append an empty t-1 visible layer
 
         // Calculate the activations of the hidden units.
-        final Matrix hiddenActivations = recurrentDataSet.dot(weights);
+        final Matrix hiddenActivations = currentAndNoNextEvent.dot(weights);
         // Calculate the probabilities of turning the hidden units on.
         final Matrix hiddenProbabilities = hiddenActivations.apply(SIGMOID);
         // Turn the hidden units on with their specified probabilities.
-        final Matrix hiddenStates = hiddenProbabilities.apply(DenseMatrix.random(numberSamples, rbm.getHiddenSize()), ACTIVATION_STATE);
+        final Matrix hiddenStates = hiddenProbabilities.apply(DenseMatrix.random(event.rows(), rbm.getHiddenSize()), ACTIVATION_STATE);
 
         return hiddenStates;
     }
@@ -114,16 +119,16 @@ public class RecurrentContrastiveDivergence {
         visible_states, A matrix where each row consists of the visible units activated from the hidden
         units in the data matrix passed in.
      */
-    public Matrix runHidden(final RBM rbm, final Matrix dataSet) {
+    public Matrix runHidden(final RBM rbm, final Matrix event) {
 
         final Matrix weights = rbm.getWeights();
 
         // Calculate the activations of the hidden units.
-        final Matrix visibleActivations = dataSet.dot(weights.transpose());
+        final Matrix visibleActivations = event.dot(weights.transpose());
         // Calculate the probabilities of turning the visible units on.
         final Matrix visibleProbabilities = visibleActivations.apply(SIGMOID);
         // Turn the visible units on with their specified probabilities.
-        final Matrix visibleStates = visibleProbabilities.apply(DenseMatrix.random(dataSet.rows(), rbm.getVisibleSize()), ACTIVATION_STATE);
+        final Matrix visibleStates = visibleProbabilities.apply(DenseMatrix.random(event.rows(), rbm.getVisibleSize()), ACTIVATION_STATE);
 
         return visibleStates;
     }
