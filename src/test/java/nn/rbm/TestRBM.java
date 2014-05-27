@@ -509,14 +509,19 @@ public class TestRBM {
         final int imageDim = totalDataSet.dim() / totalDataSet.rows(); // 784
 
         final RBM rbm = RBM_FACTORY.build(imageDim * 2, 30); // two times the input because of the recurrent input
-        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(5000));
+        final RecurrentContrastiveDivergence recurrentContrastiveDivergence = new RecurrentContrastiveDivergence(new LearningParameters().setEpochs(7500).setLearningRate(0.1));
 
-        final List<Matrix> trainingData = new ArrayList<>(5);
-        trainingData.add(DenseMatrix.make(totalDataSet.row(0)));
-        trainingData.add(DenseMatrix.make(totalDataSet.row(1)));
-        trainingData.add(DenseMatrix.make(totalDataSet.row(2)));
-        trainingData.add(DenseMatrix.make(totalDataSet.row(3)));
-        trainingData.add(DenseMatrix.make(totalDataSet.row(4)));
+        final List<Matrix> trainingData = new ArrayList<>(10);
+        trainingData.add(DenseMatrix.make(totalDataSet.row(0)));      // 5
+        trainingData.add(DenseMatrix.make(totalDataSet.row(1)));      // 0
+        trainingData.add(DenseMatrix.make(totalDataSet.row(2)));      // 4
+        trainingData.add(DenseMatrix.make(totalDataSet.row(3)));      // 1
+        trainingData.add(DenseMatrix.make(totalDataSet.row(4)));      // 9
+        trainingData.add(DenseMatrix.make(totalDataSet.row(5)));     // 2
+     //   trainingData.add(DenseMatrix.make(totalDataSet.row(6)));     // 1
+        trainingData.add(DenseMatrix.make(totalDataSet.row(7)));    // 3
+    //    trainingData.add(DenseMatrix.make(totalDataSet.row(8)));   // 1
+        trainingData.add(DenseMatrix.make(totalDataSet.row(9)));     // 4
 
 
         for(Matrix data : trainingData) {
