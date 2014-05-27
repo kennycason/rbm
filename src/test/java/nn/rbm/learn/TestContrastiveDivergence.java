@@ -1,4 +1,4 @@
-package nn.rbm;
+package nn.rbm.learn;
 
 import data.image.Image;
 import data.image.decode.Matrix1BitImageDecoder;
@@ -11,9 +11,8 @@ import data.image.encode.MatrixGrayscaleImageEncoder;
 import data.mnist.MNISTImageLoader;
 import math.DenseMatrix;
 import math.Matrix;
+import nn.rbm.RBM;
 import nn.rbm.factory.RandomRBMFactory;
-import nn.rbm.learn.ContrastiveDivergence;
-import nn.rbm.learn.LearningParameters;
 import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,9 +26,9 @@ import java.util.Set;
 /**
  * Created by kenny on 5/12/14.
  */
-public class TestRBM {
+public class TestContrastiveDivergence {
 
-    private static final Logger LOGGER = Logger.getLogger(TestRBM.class);
+    private static final Logger LOGGER = Logger.getLogger(TestContrastiveDivergence.class);
 
     private static final RandomRBMFactory RBM_FACTORY = new RandomRBMFactory();
 
