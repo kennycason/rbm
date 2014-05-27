@@ -1,4 +1,4 @@
-package nn.rbm;
+package nn.rbm.learn;
 
 import data.image.Image;
 import data.image.decode.Matrix24BitImageDecoder;
@@ -7,9 +7,6 @@ import math.Matrix;
 import nn.rbm.deep.DeepRBM;
 import nn.rbm.deep.LayerParameters;
 import nn.rbm.factory.RandomRBMFactory;
-import nn.rbm.learn.DeepContrastiveDivergence;
-import nn.rbm.learn.LearningParameters;
-import nn.rbm.learn.MultiThreadedDeepContrastiveDivergence;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import utils.Clock;
@@ -17,9 +14,9 @@ import utils.Clock;
 /**
  * Created by kenny on 5/12/14.
  */
-public class TestThreadedRBM {
+public class TestThreadedDeepContrastiveDivergence {
 
-    private static final Logger LOGGER = Logger.getLogger(TestThreadedRBM.class);
+    private static final Logger LOGGER = Logger.getLogger(TestThreadedDeepContrastiveDivergence.class);
 
     private static final RandomRBMFactory RBM_FACTORY = new RandomRBMFactory();
 
