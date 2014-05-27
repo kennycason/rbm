@@ -28,8 +28,11 @@ public class RecurrentContrastiveDivergence {
 
     private final LearningParameters learningParameters;
 
+    private final int memory;
+
     public RecurrentContrastiveDivergence(final LearningParameters learningParameters) {
         this.learningParameters = learningParameters;
+        this.memory = this.learningParameters.getMemory();
     }
 
     /**
@@ -38,6 +41,8 @@ public class RecurrentContrastiveDivergence {
      * @param events
      */
     public void learn(final RBM rbm, final List<Matrix> events) {
+        checkRBMConfigurations(rbm, events);
+
         final int numberEvents = events.size();
         final Matrix weights = rbm.getWeights();
 
@@ -45,11 +50,9 @@ public class RecurrentContrastiveDivergence {
         CLOCK.start();
         for(int epoch = 0; epoch < learningParameters.getEpochs(); epoch++) {
 
-            for(int event = 0; event < events.size(); event++) {
+            for(int event = 0; event < events.size() - memory; event++) {
 
                 final Matrix currentAndNextEvent = createTemporalInput(event, events);
-
-                // LOGGER.info("Recurrent Dataset\n" + PrettyPrint.toPixelBox(recurrentDataSet.toArray(), 0.5));
 
                 // Read training data and sample from the hidden later, positive CD phase, (reality phase)
                 final Matrix positiveHiddenActivations = currentAndNextEvent.dot(weights);
@@ -82,12 +85,27 @@ public class RecurrentContrastiveDivergence {
         }
     }
 
+    private void checkRBMConfigurations(RBM rbm, List<Matrix> events) {
+        if(rbm.getVisibleSize() != events.get(0).columns() + (events.get(0).columns() * memory)) {
+            throw new IllegalArgumentException("RBM Input size must equal event.columns() * memory");
+        }
+    }
+
+
     private Matrix createTemporalInput(int event, List<Matrix> events) {
         final Matrix currentEvent = events.get(event);
-        if(event < events.size() - 1) {
-            return currentEvent.addColumns(events.get(event + 1)); // append next event
+
+        Matrix temporalEvent = currentEvent;
+        for(int i = event + 1, t = 0; i < events.size() && t < memory; i++, t++) {
+            temporalEvent = temporalEvent.addColumns(events.get(i));
         }
-        return currentEvent.addColumns(DenseMatrix.make(currentEvent.rows(), currentEvent.columns()));
+
+        final int temporalEventColumns = currentEvent.columns() + currentEvent.columns() * memory;
+//        if(temporalEvent.columns() < temporalEventColumns) { // fill in blanks if there is not enough temporal data to train, shouldn't happen
+//            temporalEvent = temporalEvent.addColumns(DenseMatrix.make(currentEvent.rows(), temporalEventColumns - temporalEvent.columns()));
+//        }
+        //LOGGER.info("Dataset\n" + PrettyPrint.toPixelBox(temporalEvent.row(0).toArray(), 28, 0.5));
+        return temporalEvent;
     }
 
     /*
@@ -101,7 +119,7 @@ public class RecurrentContrastiveDivergence {
     public Matrix runVisible(final RBM rbm, final Matrix event) {
         final Matrix weights = rbm.getWeights();
 
-        final Matrix currentAndNoNextEvent = event.addColumns(DenseMatrix.make(event.rows(), event.columns())); // append an empty t-1 visible layer
+        final Matrix currentAndNoNextEvent = event.addColumns(DenseMatrix.make(event.rows(), event.columns() / memory)); // append an empty visible layer for next guess
 
         // Calculate the activations of the hidden units.
         final Matrix hiddenActivations = currentAndNoNextEvent.dot(weights);

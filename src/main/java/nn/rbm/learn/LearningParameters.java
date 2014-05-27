@@ -16,6 +16,8 @@ public class LearningParameters {
 
     private boolean log = true;
 
+    private int memory = 1;
+
     public double getLearningRate() {
         return learningRate;
     }
@@ -53,6 +55,15 @@ public class LearningParameters {
         return this;
     }
 
+    public int getMemory() {
+        return memory;
+    }
+
+    public LearningParameters setMemory(int memory) {
+        this.memory = memory;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "LearningParameters{" +
@@ -60,6 +71,7 @@ public class LearningParameters {
                 ", logisticsFunction=" + logisticsFunction +
                 ", epochs=" + epochs +
                 ", log=" + log +
+                ", memory=" + memory +
                 '}';
     }
 
