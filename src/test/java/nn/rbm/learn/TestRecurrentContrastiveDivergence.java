@@ -76,7 +76,7 @@ public class TestRecurrentContrastiveDivergence {
         Matrix hidden;
         Matrix visual = trainingData.get(0); // supply first number to sequence, it'll use v_t to guess v_t+1
         LOGGER.info("Input : " + PrettyPrint.toPixelBox(visual.row(0).toArray(), 28, 0.5));
-        for(int i = 0; i < trainingData.size() * 2; i++) { // make it loops twice
+        for(int i = 0; i < trainingData.size(); i++) { // make it loops twice
             hidden = recurrentContrastiveDivergence.runVisible(rbm, visual);
             visual = recurrentContrastiveDivergence.runHidden(rbm, hidden);
 

@@ -36,6 +36,8 @@ public class RecurrentContrastiveDivergence {
     }
 
     /**
+     *
+     * input memory will be of the form v_t-m, v_t-m-1, ..., v_t-1, v_t(current)
      * learn a sequence of events
      * @param rbm
      * @param events
