@@ -8,8 +8,8 @@ import nn.rbm.deep.RBMLayer;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -25,30 +25,30 @@ public class DeepRBMPersister {
     private static final RBMPersister RBM_PERSISTER = new RBMPersister();
 
     public void save(final DeepRBM deepRBM, final String file) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        // write out layer info
-        final RBMLayer[] rbmLayers = deepRBM.getRbmLayers();
-        for(int l = 0; l < rbmLayers.length; l++) {
-            stringBuilder.append(rbmLayers[l].size());
-            stringBuilder.append(DELIM);
-            stringBuilder.append(rbmLayers[l].getRBM(0).getVisibleSize());
-            stringBuilder.append(DELIM);
-            stringBuilder.append(rbmLayers[l].getRBM(0).getHiddenSize());
-            if(l < rbmLayers.length - 1) {
-                stringBuilder.append(DELIM);
-            }
-        }
-        stringBuilder.append('\n');
-
-        // for each layer, write out each rbm
-        for(int l = 0; l < rbmLayers.length; l++) {
-            for(int r = 0; r < rbmLayers[l].size(); r++) {
-                stringBuilder.append(RBM_PERSISTER.buildStringBuilderData(rbmLayers[l].getRBM(r)));
-            }
-        }
         try {
-            IOUtils.write(stringBuilder.toString().getBytes(), new FileOutputStream(file));
+            LOGGER.info("Saving Deep RBM to " + file);
+            FileWriter writer = new FileWriter(file);
+
+            // write out layer info
+            final RBMLayer[] rbmLayers = deepRBM.getRbmLayers();
+            for(int l = 0; l < rbmLayers.length; l++) {
+                writer.write(rbmLayers[l].size());
+                writer.write(DELIM);
+                writer.write(rbmLayers[l].getRBM(0).getVisibleSize());
+                writer.write(DELIM);
+                writer.write(rbmLayers[l].getRBM(0).getHiddenSize());
+                if(l < rbmLayers.length - 1) {
+                    writer.write(DELIM);
+                }
+            }
+            writer.write('\n');
+
+            // for each layer, write out each rbm
+            for(int l = 0; l < rbmLayers.length; l++) {
+                for(int r = 0; r < rbmLayers[l].size(); r++) {
+                    RBM_PERSISTER.writeStringBuilderData(rbmLayers[l].getRBM(r), writer);
+                }
+            }
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }

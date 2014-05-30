@@ -19,6 +19,7 @@ public class Image {
 
     public Image(String file) {
         try {
+            LOGGER.info("file: " + file);
             bi = ImageIO.read(Image.class.getResourceAsStream(file));
         } catch (IOException e) {
             LOGGER.info(e.getMessage(), e);

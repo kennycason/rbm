@@ -6,9 +6,10 @@ import nn.rbm.RBM;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 /**
@@ -22,27 +23,39 @@ public class RBMPersister {
 
     public void save(final RBM rbm, final String file) {
         try {
-            IOUtils.write(buildStringBuilderData(rbm).toString(), new FileOutputStream(file));
+            FileWriter fileWriter = new FileWriter(file);
+            writeStringBuilderData(rbm, fileWriter);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
     }
 
-    public StringBuilder buildStringBuilderData(final RBM rbm) {
-        final StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(rbm.getVisibleSize()).append(DELIM).append(rbm.getHiddenSize()).append('\n');
+
+    public void save(final RBM rbm, final Writer writer) {
+        try {
+            writeStringBuilderData(rbm, writer);
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    public void writeStringBuilderData(final RBM rbm, final Writer writer) throws IOException {
+        writer.write(rbm.getVisibleSize());
+        writer.write(DELIM);
+        writer.write(rbm.getHiddenSize());
+        writer.write('\n');
 
         final Matrix weights = rbm.getWeights();
         for(int i = 0; i < rbm.getVisibleSize(); i++) {
             for(int j = 0; j < rbm.getHiddenSize(); j++) {
-                stringBuilder.append(weights.get(i, j));
+                writer.write(String.valueOf(weights.get(i, j)));
+
                 if(j < rbm.getHiddenSize() - 1) {
-                    stringBuilder.append(DELIM);
+                    writer.write(DELIM);
                 }
             }
-            stringBuilder.append('\n');
+            writer.write('\n');
         }
-        return stringBuilder;
     }
 
     public RBM load(final String file) {

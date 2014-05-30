@@ -67,7 +67,7 @@ public class MultiThreadedDeepContrastiveDivergence {
         }
 
         if(learningParameters.isLog()) {
-            LOGGER.info("All Layers finished Training in " + clock.elapsedSeconds() + "ms");
+            LOGGER.info("All Layers finished Training in " + clock.elapsedSeconds() + "s");
         }
     }
 
