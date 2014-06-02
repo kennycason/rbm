@@ -2,7 +2,7 @@ Restricted Boltzmann Machine
 ===========
 RBM Contrastive Divergence algorithm implemented from http://blog.echen.me/2011/07/18/introduction-to-restricted-boltzmann-machines/
 
-This version includes image encoding/decoding schemes, a deep CD RBM. Uses <a href="https://sites.google.com/site/piotrwendykier/software/parallelcolt" target="_blank">Parallel Colt</a> for matrix processing.
+This version includes image encoding/decoding schemes, a deep CD RBM. Uses <a href="https://sites.google.com/site/piotrwendykier/software/parallelcolt" target="_blank">Parallel Colt</a> for matrix processing. Also includes a Multithreaded version of Contrastive Divergence for a Deep RBM.
 
 Results RBM(visual=6,hidden=4)
 ```
@@ -20,6 +20,20 @@ Output: [[0.0, 0.0, 1.0, 1.0, 1.0, 0.0]]
 Inputs: [[0.0, 0.0, 0.0, 1.0, 1.0, 0.0] [0.0, 0.0, 1.0, 1.0, 0.0, 0.0]]
 Outputs: [0.0, 0.0, 1.0, 1.0, 1.0, 0.0] [0.0, 0.0, 1.0, 1.0, 0.0, 0.0]]
 ```
+Code for above Output:
+```java
+final RBM rbm = RBM_FACTORY.build(6, 3);
+final ContrastiveDivergence contrastiveDivergence = new ContrastiveDivergence(new LearningParameters().setEpochs(25000));
+
+contrastiveDivergence.learn(rbm, buildBetterSampleTrainingData());
+
+// fetch two recommendations
+final Matrix testData = DenseMatrix.make(new double[][]{{0, 0, 0, 1, 1, 0}, {0, 0, 1, 1, 0, 0}});
+final Matrix hidden = contrastiveDivergence.runVisible(rbm, testData);
+LOGGER.info(testData);
+final Matrix visual = contrastiveDivergence.runHidden(rbm, hidden);
+LOGGER.info(visual);
+```        
 
 Image Recognition
 
