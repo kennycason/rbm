@@ -41,6 +41,35 @@ Deep RBM - Input a 400*250 pixel image of a fighter jet at 24bit color resolutio
    </tr>
 </table>
 
+RBM - Learn 9 Pokemon Image (Full dataset contains 151 pokemon) 60x60 pixels, 24bit resolution.
+<table>
+   <tr>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/9_single_rbm/pokemon_0.bmp" width="180"/></td> 
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/9_single_rbm/pokemon_1.bmp" width="180"/></td>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/9_single_rbm/pokemon_2.bmp" width="180"/></td>
+   </tr><tr>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/9_single_rbm/pokemon_3.bmp" width="180"/></td>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/9_single_rbm/pokemon_4.bmp" width="180"/></td>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/9_single_rbm/pokemon_5.bmp" width="180"/></td>
+   </tr><tr>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/9_single_rbm/pokemon_6.bmp" width="180"/></td>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/9_single_rbm/pokemon_7.bmp" width="180"/></td>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/9_single_rbm/pokemon_8.bmp" width="180"/></td>
+   </tr>
+</table>
+
+RBM - Note how having a white BG (max value input) negatively affects learning, where as a Black (zero value input) converges quickly. They were trained on identical RBMs for the same number of epochs. 
+<table>
+   <tr>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/change_bg/pokemon_white_0.bmp" width="180"/></td> 
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/change_bg/pokemon_white_1.bmp" width="180"/></td>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/change_bg/pokemon_white_2.bmp" width="180"/></td>
+   </tr><tr>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/change_bg/pokemon_black_0.bmp" width="180"/></td> 
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/change_bg/pokemon_black_1.bmp" width="180"/></td>
+      <td><img src="https://raw.githubusercontent.com/kennycason/rbm/master/src/main/resources/data/pokemon/output/change_bg/pokemon_black_2.bmp" width="180"/></td>
+   </tr>
+</table>
 
 Number Recognition
 ```
