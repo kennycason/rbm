@@ -27,7 +27,7 @@ public class MatrixGrayscaleImageDecoder implements MatrixImageDecoder {
     @Override
     public Image decode(final Matrix matrix) {
         cols = matrix.columns() / BITS / rows;
-        BufferedImage bi = new BufferedImage(cols, rows, BufferedImage.TYPE_INT_RGB);
+        BufferedImage bi = new BufferedImage(cols, rows, BufferedImage.TYPE_INT_RGB);  // TODO actually just use grayscale
         int y = 0;
         for(int x = 0; x < cols * rows; x++) {
             read(matrix, bi, x, y);
