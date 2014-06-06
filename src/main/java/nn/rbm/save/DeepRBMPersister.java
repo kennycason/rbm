@@ -32,11 +32,11 @@ public class DeepRBMPersister {
             // write out layer info
             final RBMLayer[] rbmLayers = deepRBM.getRbmLayers();
             for(int l = 0; l < rbmLayers.length; l++) {
-                writer.write(rbmLayers[l].size());
+                writer.write(String.valueOf(rbmLayers[l].size()));
                 writer.write(DELIM);
-                writer.write(rbmLayers[l].getRBM(0).getVisibleSize());
+                writer.write(String.valueOf(rbmLayers[l].getRBM(0).getVisibleSize()));
                 writer.write(DELIM);
-                writer.write(rbmLayers[l].getRBM(0).getHiddenSize());
+                writer.write(String.valueOf(rbmLayers[l].getRBM(0).getHiddenSize()));
                 if(l < rbmLayers.length - 1) {
                     writer.write(DELIM);
                 }
@@ -49,6 +49,7 @@ public class DeepRBMPersister {
                     RBM_PERSISTER.writeStringBuilderData(rbmLayers[l].getRBM(r), writer);
                 }
             }
+            writer.close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }

@@ -21,7 +21,7 @@ public class TestDeepRBMPersister {
     public void saveLoadTest() {
         final LayerParameters[] layerParameters = new LayerParameters[] {
             new LayerParameters().setNumRBMS(2).setVisibleUnitsPerRBM(3).setHiddenUnitsPerRBM(2),
-            new LayerParameters().setNumRBMS(1).setVisibleUnitsPerRBM(6).setHiddenUnitsPerRBM(2),
+            new LayerParameters().setNumRBMS(1).setVisibleUnitsPerRBM(4).setHiddenUnitsPerRBM(2),
         };
 
         final DeepRBMPersister deepRBMPersister = new DeepRBMPersister();

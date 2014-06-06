@@ -23,8 +23,9 @@ public class RBMPersister {
 
     public void save(final RBM rbm, final String file) {
         try {
-            FileWriter fileWriter = new FileWriter(file);
-            writeStringBuilderData(rbm, fileWriter);
+            FileWriter writer = new FileWriter(file);
+            writeStringBuilderData(rbm, writer);
+            writer.close();
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
@@ -40,9 +41,9 @@ public class RBMPersister {
     }
 
     public void writeStringBuilderData(final RBM rbm, final Writer writer) throws IOException {
-        writer.write(rbm.getVisibleSize());
+        writer.write(String.valueOf(rbm.getVisibleSize()));
         writer.write(DELIM);
-        writer.write(rbm.getHiddenSize());
+        writer.write(String.valueOf(rbm.getHiddenSize()));
         writer.write('\n');
 
         final Matrix weights = rbm.getWeights();

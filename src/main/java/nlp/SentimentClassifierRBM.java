@@ -59,6 +59,7 @@ public class SentimentClassifierRBM {
 
     public static void main(String[] args) {
         final SentimentClassifierRBM sentimentClassifier = new SentimentClassifierRBM();
+       // sentimentClassifier.load("/tmp/sentiment_rbm_stem.csv");
         sentimentClassifier.train();
         sentimentClassifier.save("/tmp/sentiment_rbm_stem.csv");
 
@@ -103,6 +104,8 @@ public class SentimentClassifierRBM {
         int positive = 0;
         int negative = 0;
         for(List<Matrix> sentence : sentences) {
+            if(sentence.isEmpty()) { continue; }
+
             final Matrix visible = visualizeEvents(this.rbm, sentence);
             LOGGER.info(visible);
             LOGGER.info("Raw Output: " + PrettyPrint.toPixelBox(visible.row(0).toArray(), visible.columns(), 0.5));
