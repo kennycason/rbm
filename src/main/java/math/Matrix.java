@@ -165,6 +165,10 @@ public abstract class Matrix {
         return appended;
     }
 
+    public static double[][] concatRows(final List<Matrix> m) {
+        return concatRows(m.toArray(new Matrix[m.size()]));
+    }
+
     public static double[][] concatRows(final Matrix... m) {
         int totalRows = 0;
         for(int i = 0; i < m.length; i++) {

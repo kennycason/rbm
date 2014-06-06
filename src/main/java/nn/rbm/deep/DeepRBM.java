@@ -6,6 +6,20 @@ import utils.PrettyPrint;
 
 /**
  * Created by kenny on 5/16/14.
+ *
+ * A deep RBM can be configured in the standard way (one RBM per layer)
+ *  h_2     (o   o   o)
+ *            [X   X]
+ *  h_1     (o   o   o)
+ *            [X   X]
+ *  v       (o   o   o)
+ *
+ * Or it can be configured as a Shape RBM (multiple RBMs per layer)
+ *  h_2     (o   o   o   o)
+ *            [X   X   X]
+ *  h_1     (o   o) (o   o)
+ *            [X   X   X]
+ *  v       (o) (o) (o) (o)
  */
 public class DeepRBM {
 
