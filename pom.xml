@@ -29,13 +29,10 @@
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
         </dependency>
-
-        <!-- Testing -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-            <scope>test</scope>
+            <groupId>com.googlecode.lambdaj</groupId>
+            <artifactId>lambdaj</artifactId>
+            <version>2.3.3</version>
         </dependency>
 
         <dependency>
@@ -58,6 +55,16 @@
             <groupId>net.sourceforge.parallelcolt</groupId>
             <artifactId>parallelcolt</artifactId>
             <version>0.10.1</version>
+        </dependency>
+
+
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
