@@ -1,8 +1,6 @@
 package nlp;
 
 import ch.lambdaj.Lambda;
-import edu.stanford.nlp.ling.Word;
-import edu.stanford.nlp.process.Morphology;
 import math.Matrix;
 import math.functions.distance.DistanceFunction;
 import math.functions.distance.EuclideanDistanceFunction;
@@ -25,11 +23,6 @@ public class WordDictionary {
 
     private static final Logger LOGGER = Logger.getLogger(WordDictionary.class);
 
-    // for getting word stems;
-    private static final Morphology MORPHOLOGY = new Morphology();
-
-    private boolean useStems = true;
-
     // a unique word vector for each word (storing a 1xN matrix)
     private Map<String, Matrix> wordVectors = new HashMap<>();
 
@@ -50,10 +43,7 @@ public class WordDictionary {
         }
     }
 
-    public void add(String word) {
-        if(useStems) {
-            word = String.valueOf(MORPHOLOGY.stem(new Word(word)));
-        }
+    public void add(final String word) {
         // LOGGER.info("adding: " + word);
         if(wordVectors.containsKey(word)) { return; }
 
@@ -65,9 +55,6 @@ public class WordDictionary {
     }
 
     public Matrix getVector(String word) {
-        if(useStems) {
-            word = String.valueOf(MORPHOLOGY.stem(new Word(word)));
-        }
         return wordVectors.get(word);
     }
 

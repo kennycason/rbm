@@ -28,9 +28,11 @@ public class TestLearnWords {
 
     @Test
     public void learnWords() {
+        runExperiment(100, 1);    // 100.0% (100 hidden)
+        runExperiment(1000, 10);    // 100.0% (100 hidden)
         //runExperiment(10000, 100);    // 99.0% (100 hidden)
         //runExperiment(20000, 1000);   // 96.0% (100 hidden)
-        runExperiment(30000, 10000);    // 94.7%% (100 hidden)
+        //runExperiment(30000, 10000);    // 94.7%% (100 hidden)
     }
 
     @Test
