@@ -6,6 +6,8 @@ import java.util.Arrays;
 
 /**
  * Created by kenny on 5/16/14.
+ *
+ * A layer can have multiple RBMs, this allows convolution-like networks when configuring a deep rbm
  */
 public class RBMLayer {
 
