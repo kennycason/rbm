@@ -2,7 +2,7 @@ Restricted Boltzmann Machine
 ===========
 The initial RBM Contrastive Divergence algorithm implemented from <a href="http://blog.echen.me/2011/07/18/introduction-to-restricted-boltzmann-machines/" target="_blank">this blog.</a>
 
-This version includes image encoding/decoding schemes, Contrastive Divergence training for a single RBM, deep RBM, and recurrent RBMs. Uses <a href="https://sites.google.com/site/piotrwendykier/software/parallelcolt" target="_blank">Parallel Colt</a> for matrix processing. Also includes a Multithreaded Deep RBM.
+This version includes image encoding/decoding schemes, Contrastive Divergence training for a single RBM, deep, convoluted, and recurrent RBMs. Uses <a href="https://sites.google.com/site/piotrwendykier/software/parallelcolt" target="_blank">Parallel Colt</a> for matrix processing. Also includes a Multithreaded Deep RBM.
 
 Results RBM(visual=6,hidden=4)
 ```
